@@ -1,7 +1,12 @@
-name: Example
+name: Pockets
 version: 1.0.0
-main:  com.blocktyper.example.ExamplePlugin
+main:  com.blocktyper.pockets.PocketsPlugin
 author: spaarkimus
 website: blocktyper.com
 database: false
-description: This is an example.
+description: Pockets. Taushen. Bolsillos. Poches. 口袋
+commands:
+  pockets: 
+    description: blah
+  pockets-pants: 
+    description: blah blah
