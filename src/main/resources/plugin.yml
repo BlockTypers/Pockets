@@ -1,0 +1,7 @@
+name: Example
+version: 1.0.0
+main:  com.blocktyper.example.ExamplePlugin
+author: spaarkimus
+website: blocktyper.com
+database: false
+description: This is an example.

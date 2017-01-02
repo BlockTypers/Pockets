@@ -1,0 +1,55 @@
+###############################################
+############## EXAMPLE ########################
+###############################################
+
+
+
+############## DEBUG ##########################
+locale: en
+debug: false
+log.recipes.enable: true
+
+
+############## RECIPES ############
+recipes:
+  - example
+
+
+###############################################
+#################### ITEMS ####################
+###############################################
+
+
+################## BEGIN Example Door ############
+recipe.example.name: Example Door
+recipe.example.rows: 
+  - DDD
+  - DID
+  - DDD
+recipe.example.mats: 
+  - D=DIAMOND
+  - I=IRON_DOOR
+recipe.root-door.output: IRON_DOOR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
