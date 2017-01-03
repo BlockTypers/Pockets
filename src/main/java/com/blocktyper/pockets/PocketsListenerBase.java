@@ -55,6 +55,8 @@ public abstract class PocketsListenerBase implements Listener {
 
 		Pocket pocket = new Pocket();
 		pocket.setContents(contents);
+		
+		int itemCount = contents != null ? contents.size() : 0;
 
 		String pocketsJson = JSON_HELPER.toJson(pocket);
 
@@ -94,8 +96,15 @@ public abstract class PocketsListenerBase implements Listener {
 
 		if (lore == null)
 			lore = new ArrayList<>();
+		
+		List<String> pocketLore = pocketsTextLines.stream().map(l -> convertToInvisibleString(l)).collect(Collectors.toList());
+		
+		if(pocketLore != null && !pocketLore.isEmpty() && pocketLore.get(0) != null){
+			String newFirtLine = plugin.getPocketName() + " ["+itemCount+"]" + pocketLore.get(0);
+			pocketLore.set(0, newFirtLine);
+		}
 
-		lore.addAll(pocketsTextLines.stream().map(l -> convertToInvisibleString(l)).collect(Collectors.toList()));
+		lore.addAll(pocketLore);
 
 		meta.setLore(lore);
 		itemWithPocket.setItemMeta(meta);
