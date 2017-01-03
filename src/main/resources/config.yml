@@ -10,9 +10,110 @@ debug: false
 log.recipes.enable: true
 
 
+materials-which-can-have-pockets:
+- LEATHER_HELMET
+- LEATHER_CHESTPLATE
+- LEATHER_LEGGINGS
+- LEATHER_BOOTS
+- CHAINMAIL_HELMET
+- CHAINMAIL_CHESTPLATE
+- CHAINMAIL_LEGGINGS
+- CHAINMAIL_BOOTS
+- IRON_HELMET
+- IRON_CHESTPLATE
+- IRON_LEGGINGS
+- IRON_BOOTS
+- DIAMOND_HELMET
+- DIAMOND_CHESTPLATE
+- DIAMOND_LEGGINGS
+- DIAMOND_BOOTS
+- GOLD_HELMET
+- GOLD_CHESTPLATE
+- GOLD_LEGGINGS
+- GOLD_BOOTS
+- SADDLE
+- CARPET
+- PUMPKIN
+
+default-pocket-size-limit: 6
+default-allow-pocket-in-pocket: false
+
+material-settings: 
+  LEATHER_HELMET: 
+    limit: 1
+    allow-pocket-in-pocket: true
+  LEATHER_CHESTPLATE: 
+    limit: 4
+    allow-pocket-in-pocket: true
+  LEATHER_LEGGINGS: 
+    limit: 8
+    allow-pocket-in-pocket: true
+  LEATHER_BOOTS: 
+    limit: 2
+    allow-pocket-in-pocket: true
+  CHAINMAIL_HELMET: 
+    limit: 1
+    allow-pocket-in-pocket: true
+  CHAINMAIL_CHESTPLATE:
+    limit: 4
+    enabled: true
+  CHAINMAIL_LEGGINGS:
+    limit: 8
+    allow-pocket-in-pocket: true
+  CHAINMAIL_BOOTS:
+    limit: 2
+    allow-pocket-in-pocket: true
+  IRON_HELMET:
+    limit: 1
+    allow-pocket-in-pocket: true
+  IRON_CHESTPLATE:
+    limit: 4
+    allow-pocket-in-pocket: true
+  IRON_LEGGINGS:
+    limit: 8
+    allow-pocket-in-pocket: true
+  IRON_BOOTS:
+    limit: 2
+    allow-pocket-in-pocket: true
+  DIAMOND_HELMET:
+    limit: 2
+    allow-pocket-in-pocket: true
+  DIAMOND_CHESTPLATE:
+    limit: 6
+    allow-pocket-in-pocket: true
+  DIAMOND_LEGGINGS:
+    limit: 10
+    allow-pocket-in-pocket: true
+  DIAMOND_BOOTS:
+    limit: 4
+    allow-pocket-in-pocket: true
+  GOLD_HELMET:
+    limit: 2
+    allow-pocket-in-pocket: true
+  GOLD_CHESTPLATE:
+    limit: 5
+    allow-pocket-in-pocket: true
+  GOLD_LEGGINGS:
+    limit: 9
+    allow-pocket-in-pocket: true
+  GOLD_BOOTS:
+    limit: 3
+    allow-pocket-in-pocket: true
+  SADDLE: 
+    limit: 16
+    allow-pocket-in-pocket: true
+  CARPET: 
+    limit: 16
+    allow-pocket-in-pocket: true
+  PUMPKIN: 
+    limit: 12
+    allow-pocket-in-pocket: true
+
+
+
 ############## RECIPES ############
 recipes:
-  - example
+  - pocket
 
 
 ###############################################
@@ -20,36 +121,16 @@ recipes:
 ###############################################
 
 
-################## BEGIN Example Door ############
-recipe.example.name: Example Door
-recipe.example.rows: 
-  - DDD
-  - DID
-  - DDD
-recipe.example.mats: 
-  - D=DIAMOND
-  - I=IRON_DOOR
-recipe.root-door.output: IRON_DOOR
+################## BEGIN Pocket ############
+recipe.pocket.name: Pocket
+recipe.pocket.rows: 
+  - III
+  - RRR
+  - RRR
+recipe.pocket.mats: 
+  - R=RABBIT_HIDE
+  - I=IRON_INGOT
+recipe.pocket.output: FLOWER_POT_ITEM
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
   

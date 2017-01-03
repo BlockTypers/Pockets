@@ -3,24 +3,18 @@ package com.blocktyper.pockets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import com.blocktyper.plugin.BlockTyperPlugin;
-import com.blocktyper.serialization.CardboardBox;
-import com.google.gson.Gson;
 
 public class PocketsPlugin extends BlockTyperPlugin {
 
 	public static final String RESOURCE_NAME = "com.blocktyper.pockets.resources.PocketsMessages";
 
-	public static String POCKETS_KEY = "#PKT";
-	public static int LORE_LINE_LENGTH_LIMIT = 500;
-
-	protected static Gson JSON_HELPER = new Gson();
+	private String pocketName;
+	private PocketsListenerBase pocketsListenerBase;
 
 	public PocketsPlugin() {
 		super();
@@ -29,158 +23,81 @@ public class PocketsPlugin extends BlockTyperPlugin {
 	public void onEnable() {
 		super.onEnable();
 		new PocketsCommand(this);
-		new InventoryClickListener(this);
+		pocketsListenerBase = new InventoryClickListener(this);
+		pocketName = getConfig().getString(ConfigKeyEnum.POCKET_NAME.getKey());
+		registerPocketRecipes();
 	}
 
-	public String convertToInvisibleString(String s) {
-		String hidden = "";
-		for (char c : s.toCharArray())
-			hidden += ChatColor.COLOR_CHAR + "" + c;
-		return hidden;
-	}
+	// recipes
+	private void registerPocketRecipes() {
+		List<String> mats = getConfig().getStringList(ConfigKeyEnum.MATERIALS_WHICH_CAN_HAVE_POCKETS.getKey());
 
-	public String convertToVisibleString(String s) {
-		if (s != null && !s.isEmpty()) {
-			s = s.replace(ChatColor.COLOR_CHAR + "", "");
-		}
-
-		return s;
-	}
-
-	public boolean loreLineIsPocket(String loreLine) {
-		if (loreLine == null || loreLine.isEmpty())
-			return false;
-
-		loreLine = convertToVisibleString(loreLine);
-		
-		debugInfo("Lore line: " + loreLine);
-
-		return loreLine.contains(POCKETS_KEY);
-	}
-
-	public Pocket getPocket(ItemStack item) {
-		return getPocket(item, true);
-	}
-	public Pocket getPocket(ItemStack item, boolean hideChildPockets) {
-
-		if (item.getItemMeta() == null || item.getItemMeta().getLore() == null) {
-			debugInfo("No lore");
-			return null;
-		}
-
-		List<String> pocketLines = item.getItemMeta().getLore().stream().filter(l -> loreLineIsPocket(l))
-				.collect(Collectors.toList());
-
-		if (pocketLines == null || pocketLines.isEmpty()) {
-			debugInfo("No pocket");
-			return null;
-		}
-
-		List<String> pocketRawTexts = pocketLines.stream().map(p -> convertToVisibleString(p))
-				.collect(Collectors.toList());
-
-		if (pocketRawTexts == null || pocketRawTexts.isEmpty()) {
-			debugInfo("pocketRawTexts null or empty");
-			return null;
-		}
-
-		List<String> pocketJsonParts = null;// pocketRawText.substring(pocketRawText.indexOf(POCKETS_KEY)
-											// + POCKETS_KEY.length());
-
-		pocketJsonParts = pocketRawTexts.stream().map(p -> p.substring(p.indexOf(POCKETS_KEY) + POCKETS_KEY.length()))
-				.collect(Collectors.toList());
-
-		if (pocketJsonParts == null || pocketJsonParts.isEmpty()) {
-			debugInfo("pocketJsonParts null or empty");
-			return null;
-		}
-
-		String pocketJson = pocketJsonParts.stream().reduce("", String::concat);
-
-		Pocket pocket = deserializeJsonSafe(pocketJson, Pocket.class);
-		
-		if(hideChildPockets && pocket.getContents() != null && !pocket.getContents().isEmpty()){
-			List<ItemStack> items = pocket.getContents().stream().map(c -> getPocketItemsHidden(c)).collect(Collectors.toList());
-			List<CardboardBox> newContents = items == null ? null : items.stream().filter(i -> i != null).map(i -> new CardboardBox(i)).collect(Collectors.toList());
-			pocket.setContents(newContents);
-		}
-
-		return pocket;
-	}
-	
-	public ItemStack getPocketItemsHidden(CardboardBox box){
-		ItemStack item = box != null ? box.unbox() : null;
-		if(item != null){
-			Pocket pocket = getPocket(item, false);
-			if(pocket != null){
-				List<ItemStack> itemsInPocket = pocket.getContents() == null ? null : pocket.getContents().stream().map(c -> c.unbox()).collect(Collectors.toList());
-				setPocketJson(item, itemsInPocket);
-			}
-		}
-		return item;
-	}
-
-	public List<ItemStack> getPocketContents(ItemStack item, boolean hideChildPockets) {
-		return getPocketContents(getPocket(item, hideChildPockets));
-	}
-
-	public List<ItemStack> getPocketContents(Pocket pocket) {
-		return pocket == null || pocket.getContents() == null ? null
-				: pocket.getContents().stream().filter(c -> c != null).map(c -> c.unbox()).collect(Collectors.toList());
-	}
-
-	protected void setPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket) {
-
-		if (itemWithPocket == null) {
-			return;
-		}
-
-		List<CardboardBox> contents = null;
-
-		if (itemsInPocket != null && !itemsInPocket.isEmpty()) {
-			contents = itemsInPocket.stream().filter(i -> i != null).map(i -> new CardboardBox(i))
-					.collect(Collectors.toList());
+		if (mats != null && !mats.isEmpty()) {
+			mats.forEach(m -> registerPocketRecipe(m));
 		} else {
-			contents = new ArrayList<>();
+			debugWarning("No MATERIALS_WHICH_CAN_HAVE_POCKETS");
 		}
 
-		Pocket pocket = new Pocket();
-		pocket.setContents(contents);
+		// recipeRegistrar().registerRecipe(recipeKey, recipeName, lore,
+		// outputMaterial, amount, opOnly, materialMatrix, itemStartsWithMatrix,
+		// recipeKeepMatrix, plugin, listenersList);
+	}
 
-		String pocketsJson = JSON_HELPER.toJson(pocket);
+	private void registerPocketRecipe(String materialName) {
 
-		List<String> pocketsTextLines = new ArrayList<>();
+		Material outputMaterial = Material.matchMaterial(materialName);
 
-		int i = 0;
-		while (true) {
-			i++;
-			boolean isBreak = pocketsJson.length() <= LORE_LINE_LENGTH_LIMIT;
+		if (outputMaterial == null)
+			return;
 
-			int endIndex = !isBreak ? LORE_LINE_LENGTH_LIMIT : pocketsJson.length();
+		String pocketMaterialName = getConfig().getString(ConfigKeyEnum.POCKET_MATERIAL.getKey());
+		Material pocketMaterial = Material.matchMaterial(pocketMaterialName);
 
-			pocketsTextLines.add(i + POCKETS_KEY + pocketsJson.substring(0, endIndex));
+		if (pocketMaterial == null)
+			return;
 
-			if (isBreak)
-				break;
+		if (pocketName == null || pocketName.isEmpty())
+			return;
 
-			pocketsJson = pocketsJson.substring(endIndex);
-		}
+		String recipeKey = outputMaterial.name() + "-with-pocket";
 
-		ItemMeta meta = itemWithPocket.getItemMeta();
+		ItemStack outputItem = new ItemStack(outputMaterial);
+		pocketsListenerBase.setPocketJson(outputItem, new ArrayList<>());
 
-		List<String> lore = null;
+		List<String> lore = outputItem.getItemMeta().getLore();
+		int amount = 1;
+		boolean opOnly = false;
+		String recipeName = null;
 
-		if (meta.getLore() != null) {
-			lore = meta.getLore().stream().filter(l -> !loreLineIsPocket(l)).collect(Collectors.toList());
-		}
+		// SPS
+		// SSS
+		// SMS
+		List<Material> materialMatrix = new ArrayList<>();
+		materialMatrix.add(0, Material.STRING);
+		materialMatrix.add(1, pocketMaterial);
+		materialMatrix.add(2, Material.STRING);
+		materialMatrix.add(3, Material.STRING);
+		materialMatrix.add(4, Material.STRING);
+		materialMatrix.add(5, Material.STRING);
+		materialMatrix.add(6, Material.STRING);
+		materialMatrix.add(7, outputMaterial);
+		materialMatrix.add(8, Material.STRING);
 
-		if (lore == null)
-			lore = new ArrayList<>();
+		List<String> itemStartsWithMatrix = new ArrayList<>();
+		itemStartsWithMatrix.add("1=" + pocketName);
 
-		lore.addAll(pocketsTextLines.stream().map(l -> convertToInvisibleString(l)).collect(Collectors.toList()));
+		List<String> recipeKeepMatrix = null;
+		List<String> listenersList = null;
 
-		meta.setLore(lore);
-		itemWithPocket.setItemMeta(meta);
+		debugWarning("Pocket material: " + materialName);
+
+		recipeRegistrar().registerRecipe(recipeKey, recipeName, lore, outputMaterial, amount, opOnly, materialMatrix,
+				itemStartsWithMatrix, recipeKeepMatrix, this, listenersList);
+
+	}
+
+	public String getPocketName() {
+		return pocketName;
 	}
 
 	// begin localization
@@ -193,4 +110,5 @@ public class PocketsPlugin extends BlockTyperPlugin {
 	}
 
 	// end localization
+
 }
