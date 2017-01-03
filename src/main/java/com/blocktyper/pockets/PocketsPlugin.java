@@ -24,6 +24,7 @@ public class PocketsPlugin extends BlockTyperPlugin {
 		super.onEnable();
 		new PocketsCommand(this);
 		pocketsListenerBase = new InventoryClickListener(this);
+		new BlockPlaceListener(this);
 		pocketName = getConfig().getString(ConfigKeyEnum.POCKET_NAME.getKey());
 		registerPocketRecipes();
 	}
