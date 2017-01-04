@@ -1,13 +1,10 @@
 ###############################################
-############## EXAMPLE ########################
+############## POCKETS ########################
 ###############################################
 
-
-
-############## DEBUG ##########################
 locale: en
 debug: false
-log.recipes.enable: true
+log.recipes.enable: false
 
 
 materials-which-can-have-pockets:
@@ -41,64 +38,64 @@ default-allow-pocket-in-pocket: false
 material-settings: 
   LEATHER_HELMET: 
     limit: 1
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   LEATHER_CHESTPLATE: 
     limit: 4
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   LEATHER_LEGGINGS: 
     limit: 8
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   LEATHER_BOOTS: 
     limit: 2
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   CHAINMAIL_HELMET: 
     limit: 1
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   CHAINMAIL_CHESTPLATE:
     limit: 4
     enabled: true
   CHAINMAIL_LEGGINGS:
     limit: 8
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   CHAINMAIL_BOOTS:
     limit: 2
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   IRON_HELMET:
     limit: 1
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   IRON_CHESTPLATE:
     limit: 4
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   IRON_LEGGINGS:
     limit: 8
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   IRON_BOOTS:
     limit: 2
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   DIAMOND_HELMET:
     limit: 2
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   DIAMOND_CHESTPLATE:
     limit: 6
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   DIAMOND_LEGGINGS:
     limit: 10
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   DIAMOND_BOOTS:
     limit: 4
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   GOLD_HELMET:
     limit: 2
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   GOLD_CHESTPLATE:
     limit: 5
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   GOLD_LEGGINGS:
     limit: 9
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   GOLD_BOOTS:
     limit: 3
-    allow-pocket-in-pocket: true
+    allow-pocket-in-pocket: false
   SADDLE: 
     limit: 16
     allow-pocket-in-pocket: true
