@@ -136,6 +136,14 @@ public class PocketsUtils {
 		// STRING
 		ItemStack string = new ItemStack(Material.STRING, 64);
 		contentsList.add(string);
+		
+		// RABBIT_HIDE
+		ItemStack rabbitHide = new ItemStack(Material.RABBIT_HIDE, 64);
+		contentsList.add(rabbitHide);
+		
+		// IRON_INGOT
+		ItemStack ironIngot = new ItemStack(Material.IRON_INGOT, 64);
+		contentsList.add(ironIngot);
 
 		// POCKET
 		Material pocketMaterial = Material
