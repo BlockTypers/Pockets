@@ -86,8 +86,8 @@ public class PocketsUtils {
 
 		// EXCALIBER
 		ItemStack excaliber = new ItemStack(Material.DIAMOND_SWORD);
-		short dam = 10;
-		excaliber.setDurability(dam);
+		short durability = 800;
+		excaliber.setDurability(durability);
 		ItemMeta excaliberMeta = excaliber.getItemMeta();
 		excaliberMeta.setDisplayName("Excaliber");
 		List<String> excaliberLore = new ArrayList<>();
@@ -97,17 +97,32 @@ public class PocketsUtils {
 		excaliber.setItemMeta(excaliberMeta);
 		contentsList.add(excaliber);
 
+		
+				
 		// DIAMOND HELM
 		ItemStack diamondHelm = new ItemStack(Material.DIAMOND_HELMET);
 		ItemMeta diamondHelmMeta = diamondHelm.getItemMeta();
 		List<String> diamondHelmLore = new ArrayList<>();
-		diamondHelmLore.add("Helm Lore");
+		diamondHelmMeta.setDisplayName("Diamond Helm");
+		diamondHelmLore.add("Diamond Lore");
 		diamondHelmMeta.setLore(diamondHelmLore);
 		diamondHelmMeta.addEnchant(Enchantment.THORNS, 2, true);
 		diamondHelm.setItemMeta(diamondHelmMeta);
 		plugin.getInventoryClickListener().setPocketJson(diamondHelm, null);
 		contentsList.add(diamondHelm);
-
+		
+		// GOLD HELM
+		ItemStack goldHelm = new ItemStack(Material.GOLD_HELMET);
+		ItemMeta goldHelmMeta = goldHelm.getItemMeta();
+		List<String> goldHelmLore = new ArrayList<>();
+		goldHelmMeta.setDisplayName("Gold Helm");
+		goldHelmLore.add("Gold Lore");
+		goldHelmMeta.setLore(goldHelmLore);
+		goldHelm.setItemMeta(goldHelmMeta);
+		plugin.getInventoryClickListener().setPocketJson(goldHelm, null);
+		contentsList.add(goldHelm);
+		
+		
 		// IRON HELM
 		ItemStack ironHelm = new ItemStack(Material.IRON_HELMET);
 		plugin.getInventoryClickListener().setPocketJson(ironHelm, null);
@@ -135,6 +150,26 @@ public class PocketsUtils {
 		// SADDLE
 		ItemStack saddle = new ItemStack(Material.SADDLE);
 		contentsList.add(saddle);
+		
+		// DIAMOND_BARDING
+		ItemStack horseArmor = new ItemStack(Material.DIAMOND_BARDING);
+		contentsList.add(horseArmor);
+		
+		// CARPET
+		ItemStack carpet = new ItemStack(Material.CARPET);
+		contentsList.add(carpet);
+		
+		// ITEM_FRAME
+		ItemStack itemFrame = new ItemStack(Material.ITEM_FRAME);
+		contentsList.add(itemFrame);
+				
+		// ENCHANTING TABLE
+		ItemStack enchantmentTable = new ItemStack(Material.ENCHANTMENT_TABLE);
+		contentsList.add(enchantmentTable);
+		
+		// LAPIS_ORE
+		ItemStack lapisOre = new ItemStack(Material.LAPIS_BLOCK, 1);
+		contentsList.add(lapisOre);
 
 		// ANVIL
 		ItemStack anvil = new ItemStack(Material.ANVIL);

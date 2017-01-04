@@ -24,6 +24,7 @@ materials-which-can-have-pockets:
 - DIAMOND_CHESTPLATE
 - DIAMOND_LEGGINGS
 - DIAMOND_BOOTS
+- DIAMOND_BARDING
 - GOLD_HELMET
 - GOLD_CHESTPLATE
 - GOLD_LEGGINGS
@@ -82,6 +83,9 @@ material-settings:
     limit: 10
     allow-pocket-in-pocket: false
   DIAMOND_BOOTS:
+    limit: 4
+    allow-pocket-in-pocket: false
+  DIAMOND_BARDING: 
     limit: 4
     allow-pocket-in-pocket: false
   GOLD_HELMET:
