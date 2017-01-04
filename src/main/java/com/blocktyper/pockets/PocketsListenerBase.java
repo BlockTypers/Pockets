@@ -1,6 +1,7 @@
 package com.blocktyper.pockets;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,10 +142,17 @@ public abstract class PocketsListenerBase implements Listener {
 		Inventory pocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS, plugin.getPocketName());
 
 		int i = -1;
+		boolean noPocketInPocketIssueLocated = true;
 
 		for (ItemStack item : items) {
 			if (item == null || item.getType().equals(Material.AIR))
 				continue;
+			
+			if(pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)){
+				noPocketInPocketIssueLocated = false;
+				tryToFitItemInPlayerInventory(item, player);
+				continue;
+			}
 
 			i++;
 			pocketsInventory.setItem(i, item);
@@ -179,9 +187,102 @@ public abstract class PocketsListenerBase implements Listener {
 			openPocketMap = new HashMap<>();
 
 		openPocketMap.put(player.getName(), clickedItem);
+		
+		if(!noPocketInPocketIssueLocated){
+			//if we had to change the contents of the inventory because had invalid pocket-in-pocket items
+			//then we need to re-save the item data before opening it.
+			saveInventoryIntoItem(player, pocketsInventory, true);
+		}
 
 		PocketDelayOpener pocketDelayOpener = new PocketDelayOpener(plugin, player, pocketsInventory);
 		pocketDelayOpener.runTaskLater(plugin, 5L * 1);
+	}
+	
+	protected void saveInventoryIntoItem(HumanEntity player, Inventory inventory) {
+		saveInventoryIntoItem(player, inventory, false);
+	}
+
+	protected void saveInventoryIntoItem(HumanEntity player, Inventory inventory, boolean isOnClose) {
+		ItemStack itemWithPocket = getActivePocketItem(player);
+
+		if (itemWithPocket == null) {
+			plugin.debugInfo("itemWithPocket == null");
+			return;
+		}
+
+		ItemStack[] items = inventory.getStorageContents();
+
+		List<ItemStack> itemsInPocketTemp = items == null ? null
+				: Arrays.asList(items).stream().filter(i -> !isBlackoutItem(i)).collect(Collectors.toList());
+		
+		List<ItemStack> itemsInPocket = null;
+		boolean showPocketInPocketWarning = true;
+		if(itemsInPocketTemp != null){
+			itemsInPocket = new ArrayList<>();
+			for(ItemStack item : itemsInPocketTemp){
+				if(item != null && pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)){
+					showPocketInPocketWarning = false;
+					tryToFitItemInPlayerInventory(item, player);
+					continue;
+				}
+				itemsInPocket.add(item);
+			}
+		}
+		
+		
+
+		if (isOnClose) {
+			plugin.debugInfo("SAVING on inventory close");
+			setPocketJson(itemWithPocket, itemsInPocket);
+		} else {
+			plugin.debugInfo("SAVING after inventory action");
+			setPocketJson(itemWithPocket, itemsInPocket);
+		}
+	}
+	
+	protected boolean isBlackoutItem(ItemStack item) {
+		if (item == null)
+			return false;
+		if (!item.getType().equals(BLACKOUT_MATERIAL))
+			return false;
+		if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null)
+			return false;
+		if (!item.getItemMeta().getDisplayName().equals(BLACKOUT_TEXT))
+			return false;
+
+		return true;
+	}
+	
+	protected void tryToFitItemInPlayerInventory(ItemStack item, HumanEntity player) {
+		HashMap<Integer,ItemStack> remaining = player.getInventory().addItem(item);
+		plugin.debugWarning("tryToFitItemInPlayerInventory: " + item.getType() + "["+item.getAmount()+"]");
+		if(remaining == null || remaining.values() == null || remaining.values().isEmpty()){
+			remaining.values().forEach(i -> player.getWorld().dropItemNaturally(player.getLocation(), i));
+		}
+	}
+	
+	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player) {
+		return pocketInPocketIssue(itemWithPocket, itemInPocket, player, true);
+	}
+	
+	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player, boolean showWarning) {
+		boolean defaultAllowPocketsInPocket = plugin.getConfig().getBoolean(getMaterialSettingConfigKey(
+				itemWithPocket.getType(), ConfigKeyEnum.DEFAULT_ALLOW_POCKET_IN_POCKET.getKey()), true);
+		boolean allowPocketsInPocket = plugin.getConfig()
+				.getBoolean(
+						getMaterialSettingConfigKey(itemWithPocket.getType(),
+								ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
+						defaultAllowPocketsInPocket);
+
+		if (!allowPocketsInPocket) {
+			Pocket pocket = getPocket(itemInPocket);
+			if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
+				if(showWarning)
+					player.sendMessage(ChatColor.RED + "Pockets in pockets not allowed");
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected String convertToInvisibleString(String s) {

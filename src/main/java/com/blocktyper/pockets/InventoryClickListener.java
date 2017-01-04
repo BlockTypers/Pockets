@@ -313,25 +313,6 @@ public class InventoryClickListener extends PocketsListenerBase {
 		return copy;
 	}
 
-	private boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, Player player) {
-		boolean defaultAllowPocketsInPocket = plugin.getConfig().getBoolean(getMaterialSettingConfigKey(
-				itemWithPocket.getType(), ConfigKeyEnum.DEFAULT_ALLOW_POCKET_IN_POCKET.getKey()), true);
-		boolean allowPocketsInPocket = plugin.getConfig()
-				.getBoolean(
-						getMaterialSettingConfigKey(itemWithPocket.getType(),
-								ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
-						defaultAllowPocketsInPocket);
-
-		if (!allowPocketsInPocket) {
-			Pocket pocket = getPocket(itemInPocket);
-			if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
-				player.sendMessage(ChatColor.RED + "Pockets in pockets not allowed");
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private boolean isActionSupported(InventoryAction action) {
 		return isAdditionAction(action) || isRemovalAction(action)
 				|| action.equals(InventoryAction.MOVE_TO_OTHER_INVENTORY);
@@ -345,45 +326,6 @@ public class InventoryClickListener extends PocketsListenerBase {
 	private boolean isRemovalAction(InventoryAction action) {
 		return action.equals(InventoryAction.PICKUP_ALL) || action.equals(InventoryAction.PICKUP_HALF)
 				|| action.equals(InventoryAction.PICKUP_ONE) || action.equals(InventoryAction.DROP_ONE_SLOT);
-	}
-
-	private void saveInventoryIntoItem(HumanEntity player, Inventory inventory) {
-		saveInventoryIntoItem(player, inventory, false);
-	}
-
-	private void saveInventoryIntoItem(HumanEntity player, Inventory inventory, boolean isOnClose) {
-		ItemStack itemWithPocket = getActivePocketItem(player);
-
-		if (itemWithPocket == null) {
-			plugin.debugInfo("itemWithPocket == null");
-			return;
-		}
-
-		ItemStack[] items = inventory.getStorageContents();
-
-		List<ItemStack> itemsInPocket = items == null ? null
-				: Arrays.asList(items).stream().filter(i -> !isBlackoutItem(i)).collect(Collectors.toList());
-
-		if (isOnClose) {
-			plugin.debugInfo("SAVING on inventory close");
-			setPocketJson(itemWithPocket, itemsInPocket);
-		} else {
-			plugin.debugInfo("SAVING after inventory action");
-			setPocketJson(itemWithPocket, itemsInPocket);
-		}
-	}
-
-	private boolean isBlackoutItem(ItemStack item) {
-		if (item == null)
-			return false;
-		if (!item.getType().equals(BLACKOUT_MATERIAL))
-			return false;
-		if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null)
-			return false;
-		if (!item.getItemMeta().getDisplayName().equals(BLACKOUT_TEXT))
-			return false;
-
-		return true;
 	}
 	
 	

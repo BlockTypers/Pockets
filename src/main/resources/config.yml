@@ -6,7 +6,8 @@ locale: en
 debug: false
 log.recipes.enable: false
 
-open-pocket-action: RIGHT # from org.bukkit.event.inventory.ClickType
+# from org.bukkit.event.inventory.ClickType
+open-pocket-action: RIGHT
 
 
 materials-which-can-have-pockets:
@@ -56,7 +57,7 @@ material-settings:
     allow-pocket-in-pocket: false
   CHAINMAIL_CHESTPLATE:
     limit: 4
-    enabled: true
+    allow-pocket-in-pocket: true
   CHAINMAIL_LEGGINGS:
     limit: 8
     allow-pocket-in-pocket: false
