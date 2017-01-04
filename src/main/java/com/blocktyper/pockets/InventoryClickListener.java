@@ -22,6 +22,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryClickListener extends PocketsListenerBase {
+	
+	static final ClickType DEFAULT_CLICK_TYPE = ClickType.RIGHT;
 
 	public InventoryClickListener(PocketsPlugin plugin) {
 		super(plugin);
@@ -43,7 +45,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
 	public void onInventoryClickEvent(InventoryClickEvent event) {
 
-		plugin.debugInfo("onInventoryClickEvent");
+		plugin.debugInfo("onInventoryClickEvent: " + event.getClick().name());
 
 		if (!(event.getWhoClicked() instanceof Player)) {
 			return;
@@ -55,18 +57,34 @@ public class InventoryClickListener extends PocketsListenerBase {
 			handlePocketClick(event, player);
 			return;
 		}
+		
+		ItemStack item = event.getCurrentItem() != null && !event.getCurrentItem().getType().equals(Material.AIR) ? event.getCurrentItem() : event.getCursor();
 
-		if (event.getCurrentItem() == null || event.getCurrentItem().getType().equals(Material.AIR)) {
+		if (item == null || item.getType().equals(Material.AIR)) {
+			plugin.debugInfo("item == null || item.getType().equals(Material.AIR)");
 			return;
 		}
 
 		// if we got this far, then we are not in a pocket inventory and can
 		// there for open pockets
-
-		if (!event.getClick().equals(ClickType.SHIFT_RIGHT))
+		
+		ClickType clickType = null;
+		
+		try {
+			clickType = ClickType.valueOf(plugin.getConfig().getString(ConfigKeyEnum.OPEN_POCKET_ACTION.getKey(),DEFAULT_CLICK_TYPE.name()));
+		} catch (Exception e) {
+			plugin.warning("Issue getting default click type: " + e.getMessage());
+			clickType = null;
+		}
+		
+		clickType = clickType != null ? clickType : DEFAULT_CLICK_TYPE;
+		
+		if(!clickType.equals(event.getClick())){
+			plugin.warning("Not a pocket action click");
 			return;
+		}
 
-		openInventory(event.getCurrentItem(), player, event);
+		openInventory(item, player, event);
 	}
 
 	private void handlePocketClick(InventoryClickEvent event, Player player) {

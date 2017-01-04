@@ -10,7 +10,8 @@ public enum ConfigKeyEnum {
 	POCKET_NAME("recipe.pocket.name"),
 	OPEN_POCKET_CLICK_TYPE("open-pocket-click-type"),
 	DEFAULT_POCKET_SIZE_LIMIT("default-pocket-size-limit"),
-	DEFAULT_ALLOW_POCKET_IN_POCKET("default-allow-pocket-in-pocket")
+	DEFAULT_ALLOW_POCKET_IN_POCKET("default-allow-pocket-in-pocket"),
+	OPEN_POCKET_ACTION("open-pocket-action"),
 	;
 
 

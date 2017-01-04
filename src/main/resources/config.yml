@@ -6,6 +6,8 @@ locale: en
 debug: false
 log.recipes.enable: false
 
+open-pocket-action: RIGHT # from org.bukkit.event.inventory.ClickType
+
 
 materials-which-can-have-pockets:
 - LEATHER_HELMET
