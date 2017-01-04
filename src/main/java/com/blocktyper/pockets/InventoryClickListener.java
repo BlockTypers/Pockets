@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -33,6 +34,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			return;
 		}
 		saveInventoryIntoItem(event.getPlayer(), event.getInventory(), true);
+		InventoryClickListener.removePlayerWithPocketInventoryOpen(event.getPlayer());
 	}
 
 	/*
@@ -364,6 +366,24 @@ public class InventoryClickListener extends PocketsListenerBase {
 			return false;
 
 		return true;
+	}
+	
+	
+	//STATIC playersWithOpenInventories
+	private static Map<HumanEntity, Inventory> playersWithOpenInventories = new HashMap<HumanEntity, Inventory>();
+	
+	public static void addPlayerWithPocketInventoryOpen(HumanEntity player, Inventory inventory) {
+		playersWithOpenInventories.put(player, inventory);
+	}
+
+	public static void removePlayerWithPocketInventoryOpen(HumanEntity player) {
+		playersWithOpenInventories.remove(player);
+	}
+	
+	public void saveAllOpenPocketInventories() {
+		if(playersWithOpenInventories != null && !playersWithOpenInventories.isEmpty()){
+			playersWithOpenInventories.entrySet().forEach(e -> saveInventoryIntoItem(e.getKey(), e.getValue(), false));
+		}
 	}
 
 }

@@ -6,7 +6,5 @@ website: blocktyper.com
 database: false
 description: Pockets. Taushen. Bolsillos. Poches. 口袋
 commands:
-  pockets: 
-    description: blah
-  pockets-pants: 
-    description: blah blah
+  pockets-test: 
+    description: Provides special inventory with testing items. OP only.

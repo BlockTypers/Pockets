@@ -17,6 +17,7 @@ public class PocketDelayOpener extends BukkitRunnable {
 
 	public void run() {
 		player.closeInventory();
+		InventoryClickListener.addPlayerWithPocketInventoryOpen(player, inventory);
 		player.openInventory(inventory);
 	}
 
