@@ -1,2 +1,2 @@
-# ExampleBlockTyperPlugin
-Bukkit/Spigot plugin which uses the BlockTyperPlugin framework for logging and recipe creation.
+# Pockets
+Bukkit/Spigot plugin for Minecraft for adding pockets to items.
