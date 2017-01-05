@@ -12,6 +12,10 @@ public enum ConfigKeyEnum {
 	DEFAULT_POCKET_SIZE_LIMIT("default-pocket-size-limit"),
 	DEFAULT_ALLOW_POCKET_IN_POCKET("default-allow-pocket-in-pocket"),
 	OPEN_POCKET_ACTION("open-pocket-action"),
+	REQUIRE_PERMISSIONS_FOR_GENERAL_USE("require-permissions-general-pocket-use"),
+	GENERAL_USE_PERMISSIONS("permissions-for-general-pocket-use"),
+	REQUIRE_PERMISSIONS_FOR_POCKET_IN_POCKET_USE("require-permissions-pocket-in-pocket-use"),
+	POCKET_IN_POCKET_USE_USE_PERMISSIONS("permissions-for-pocket-in-pocket-use"),
 	;
 
 

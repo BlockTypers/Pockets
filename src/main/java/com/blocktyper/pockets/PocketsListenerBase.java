@@ -56,29 +56,28 @@ public abstract class PocketsListenerBase implements Listener {
 
 		Pocket pocket = new Pocket();
 		pocket.setContents(contents);
-		
+
 		int itemCount = contents != null ? contents.size() : 0;
 
 		String pocketsJson = JSON_HELPER.toJson(pocket);
 
 		List<String> pocketsTextLines = new ArrayList<>();
 
-
 		int i = 0;
 		while (true) {
 			i++;
 			String prefix = i + POCKETS_KEY;
-			
-			if(i == 1){
+
+			if (i == 1) {
 				prefix = UUID.randomUUID().toString() + ":" + prefix;
 			}
-			
+
 			String prefixPlusPocketsJson = prefix + pocketsJson;
-			
+
 			boolean isBreak = prefixPlusPocketsJson.length() <= LORE_LINE_LENGTH_LIMIT;
 
 			int endIndex = !isBreak ? LORE_LINE_LENGTH_LIMIT : prefixPlusPocketsJson.length();
-			
+
 			pocketsTextLines.add(prefixPlusPocketsJson.substring(0, endIndex));
 
 			if (isBreak)
@@ -97,11 +96,12 @@ public abstract class PocketsListenerBase implements Listener {
 
 		if (lore == null)
 			lore = new ArrayList<>();
-		
-		List<String> pocketLore = pocketsTextLines.stream().map(l -> convertToInvisibleString(l)).collect(Collectors.toList());
-		
-		if(pocketLore != null && !pocketLore.isEmpty() && pocketLore.get(0) != null){
-			String newFirtLine = plugin.getPocketName() + " ["+itemCount+"]" + pocketLore.get(0);
+
+		List<String> pocketLore = pocketsTextLines.stream().map(l -> convertToInvisibleString(l))
+				.collect(Collectors.toList());
+
+		if (pocketLore != null && !pocketLore.isEmpty() && pocketLore.get(0) != null) {
+			String newFirtLine = plugin.getPocketName() + " [" + itemCount + "]" + pocketLore.get(0);
 			pocketLore.set(0, newFirtLine);
 		}
 
@@ -115,7 +115,47 @@ public abstract class PocketsListenerBase implements Listener {
 		return ConfigKeyEnum.MATERIAL_SETTINGS.getKey() + "." + material.name() + "." + suffix;
 	}
 
+	protected boolean isUserPermitted(HumanEntity player, boolean isGeneral, boolean sendMessage) {
+
+		boolean userHasPermission = true;
+
+		ConfigKeyEnum requirePermissionKey = isGeneral ? ConfigKeyEnum.REQUIRE_PERMISSIONS_FOR_GENERAL_USE
+				: ConfigKeyEnum.REQUIRE_PERMISSIONS_FOR_POCKET_IN_POCKET_USE;
+
+		boolean requireUsePermissions = plugin.getConfig().getBoolean(requirePermissionKey.getKey(), false);
+
+		if (requireUsePermissions) {
+			String requiredTypeString = (isGeneral ? "General use" : "Pocket in pocket") + " permissions required";
+			plugin.debugInfo(requiredTypeString);
+			userHasPermission = false;
+
+			ConfigKeyEnum permissionsKey = isGeneral ? ConfigKeyEnum.GENERAL_USE_PERMISSIONS
+					: ConfigKeyEnum.POCKET_IN_POCKET_USE_USE_PERMISSIONS;
+			String usePermissions = plugin.getConfig().getString(permissionsKey.getKey(), null);
+
+			if (usePermissions == null) {
+				plugin.warning(requiredTypeString + ", but no permission supplied.  Please set the value for the ["
+						+ permissionsKey + "] configuration key.");
+			} else {
+				plugin.debugInfo("Checking use permissions: " + usePermissions);
+				userHasPermission = plugin.getPlayerHelper().playerCanDoAction(player, Arrays.asList(usePermissions));
+				plugin.debugInfo(userHasPermission ? "Permission granted" : "Permission denied");
+			}
+		}
+
+		if (!userHasPermission && sendMessage) {
+			player.sendMessage("Permission denied.");
+		}
+
+		return userHasPermission;
+	}
+
 	protected void openInventory(ItemStack clickedItem, Player player, Cancellable event) {
+
+		if (!isUserPermitted(player, true, true)) {
+			return;
+		}
+
 		Pocket pocket = getPocket(clickedItem);
 		if (pocket == null) {
 			return;
@@ -147,8 +187,8 @@ public abstract class PocketsListenerBase implements Listener {
 		for (ItemStack item : items) {
 			if (item == null || item.getType().equals(Material.AIR))
 				continue;
-			
-			if(pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)){
+
+			if (pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)) {
 				noPocketInPocketIssueLocated = false;
 				tryToFitItemInPlayerInventory(item, player);
 				continue;
@@ -187,17 +227,18 @@ public abstract class PocketsListenerBase implements Listener {
 			openPocketMap = new HashMap<>();
 
 		openPocketMap.put(player.getName(), clickedItem);
-		
-		if(!noPocketInPocketIssueLocated){
-			//if we had to change the contents of the inventory because had invalid pocket-in-pocket items
-			//then we need to re-save the item data before opening it.
+
+		if (!noPocketInPocketIssueLocated) {
+			// if we had to change the contents of the inventory because had
+			// invalid pocket-in-pocket items
+			// then we need to re-save the item data before opening it.
 			saveInventoryIntoItem(player, pocketsInventory, true);
 		}
 
 		PocketDelayOpener pocketDelayOpener = new PocketDelayOpener(plugin, player, pocketsInventory);
 		pocketDelayOpener.runTaskLater(plugin, 5L * 1);
 	}
-	
+
 	protected void saveInventoryIntoItem(HumanEntity player, Inventory inventory) {
 		saveInventoryIntoItem(player, inventory, false);
 	}
@@ -214,13 +255,13 @@ public abstract class PocketsListenerBase implements Listener {
 
 		List<ItemStack> itemsInPocketTemp = items == null ? null
 				: Arrays.asList(items).stream().filter(i -> !isBlackoutItem(i)).collect(Collectors.toList());
-		
+
 		List<ItemStack> itemsInPocket = null;
 		boolean showPocketInPocketWarning = true;
-		if(itemsInPocketTemp != null){
+		if (itemsInPocketTemp != null) {
 			itemsInPocket = new ArrayList<>();
-			for(ItemStack item : itemsInPocketTemp){
-				if(item != null && pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)){
+			for (ItemStack item : itemsInPocketTemp) {
+				if (item != null && pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)) {
 					showPocketInPocketWarning = false;
 					tryToFitItemInPlayerInventory(item, player);
 					continue;
@@ -228,8 +269,6 @@ public abstract class PocketsListenerBase implements Listener {
 				itemsInPocket.add(item);
 			}
 		}
-		
-		
 
 		if (isOnClose) {
 			plugin.debugInfo("SAVING on inventory close");
@@ -239,7 +278,7 @@ public abstract class PocketsListenerBase implements Listener {
 			setPocketJson(itemWithPocket, itemsInPocket);
 		}
 	}
-	
+
 	protected boolean isBlackoutItem(ItemStack item) {
 		if (item == null)
 			return false;
@@ -252,20 +291,21 @@ public abstract class PocketsListenerBase implements Listener {
 
 		return true;
 	}
-	
+
 	protected void tryToFitItemInPlayerInventory(ItemStack item, HumanEntity player) {
-		HashMap<Integer,ItemStack> remaining = player.getInventory().addItem(item);
-		plugin.debugWarning("tryToFitItemInPlayerInventory: " + item.getType() + "["+item.getAmount()+"]");
-		if(remaining == null || remaining.values() == null || remaining.values().isEmpty()){
+		HashMap<Integer, ItemStack> remaining = player.getInventory().addItem(item);
+		plugin.debugWarning("tryToFitItemInPlayerInventory: " + item.getType() + "[" + item.getAmount() + "]");
+		if (remaining == null || remaining.values() == null || remaining.values().isEmpty()) {
 			remaining.values().forEach(i -> player.getWorld().dropItemNaturally(player.getLocation(), i));
 		}
 	}
-	
+
 	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player) {
 		return pocketInPocketIssue(itemWithPocket, itemInPocket, player, true);
 	}
-	
-	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player, boolean showWarning) {
+
+	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player,
+			boolean showWarning) {
 		boolean defaultAllowPocketsInPocket = plugin.getConfig().getBoolean(getMaterialSettingConfigKey(
 				itemWithPocket.getType(), ConfigKeyEnum.DEFAULT_ALLOW_POCKET_IN_POCKET.getKey()), true);
 		boolean allowPocketsInPocket = plugin.getConfig()
@@ -274,14 +314,17 @@ public abstract class PocketsListenerBase implements Listener {
 								ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
 						defaultAllowPocketsInPocket);
 
-		if (!allowPocketsInPocket) {
-			Pocket pocket = getPocket(itemInPocket);
-			if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
-				if(showWarning)
+		Pocket pocket = getPocket(itemInPocket);
+		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
+			if (!allowPocketsInPocket) {
+				if (showWarning)
 					player.sendMessage(ChatColor.RED + "Pockets in pockets not allowed");
+				return true;
+			} else if (!isUserPermitted(player, false, showWarning)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 

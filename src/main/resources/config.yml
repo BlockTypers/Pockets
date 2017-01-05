@@ -39,6 +39,12 @@ materials-which-can-have-pockets:
 default-pocket-size-limit: 6
 default-allow-pocket-in-pocket: false
 
+require-permissions-general-pocket-use: false
+permissions-for-general-pocket-use: pockets.general
+
+require-permissions-pocket-in-pocket-use: false
+permissions-for-pocket-in-pocket-use: pockets.pocket-in-pocket
+
 material-settings: 
   LEATHER_HELMET: 
     limit: 1
@@ -118,11 +124,6 @@ material-settings:
 ############## RECIPES ############
 recipes:
   - pocket
-
-
-###############################################
-#################### ITEMS ####################
-###############################################
 
 
 ################## BEGIN Pocket ############
