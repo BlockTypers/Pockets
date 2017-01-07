@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -42,6 +43,8 @@ public class BlockPlaceListener extends PocketsListenerBase {
 			plugin.debugInfo("[onPocketBlockPlaceEvent] pocket == null");
 			return;
 		}
+		
+		setPocketBlockMetaDataValue(event.getPlayer(), event.getBlock());
 
 		if (pocket.getContents() == null || pocket.getContents().isEmpty()) {
 			plugin.debugInfo(
@@ -51,11 +54,17 @@ public class BlockPlaceListener extends PocketsListenerBase {
 
 		pocket.getContents().forEach(i -> dropItem(i, event.getBlock()));
 		
-		event.getPlayer().sendMessage(ChatColor.RED + "The item you just placed had a pocket attached. If you pick it back up soon, it might still be there.");
+	}
+	
+	private void setPocketBlockMetaDataValue(Player player, Block block){
+		String message = plugin.getLocalizedMessage(LocalizedMessageEnum.PLACED_A_POCKET_DOWN.getKey(), player);
+		
+		player.sendMessage(ChatColor.RED + message);
 
 		MetadataValue mdv = new FixedMetadataValue(plugin, true); 
-		event.getBlock().setMetadata(IS_EMPTY_POCKET, mdv);
+		block.setMetadata(IS_EMPTY_POCKET, mdv);
 	}
+	
 
 	private void dropItem(CardboardBox box, Block block) {
 		if (block == null)

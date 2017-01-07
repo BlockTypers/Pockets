@@ -2,6 +2,7 @@
 ############## POCKETS ########################
 ###############################################
 
+#this locale is only used if there if player's language is not supported
 locale: en
 debug: false
 log.recipes.enable: false

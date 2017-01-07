@@ -144,7 +144,8 @@ public abstract class PocketsListenerBase implements Listener {
 		}
 
 		if (!userHasPermission && sendMessage) {
-			player.sendMessage("Permission denied.");
+			String message = plugin.getLocalizedMessage(LocalizedMessageEnum.PERMISSION_DENIED.getKey(), player);
+			player.sendMessage(message);
 		}
 
 		return userHasPermission;
@@ -317,8 +318,10 @@ public abstract class PocketsListenerBase implements Listener {
 		Pocket pocket = getPocket(itemInPocket);
 		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
 			if (!allowPocketsInPocket) {
-				if (showWarning)
-					player.sendMessage(ChatColor.RED + "Pockets in pockets not allowed");
+				if (showWarning){
+					String message = plugin.getLocalizedMessage(LocalizedMessageEnum.POCKETS_IN_POCKETS_NOT_ALLOWED.getKey(), player);
+					player.sendMessage(ChatColor.RED + message);
+				}
 				return true;
 			} else if (!isUserPermitted(player, false, showWarning)) {
 				return true;

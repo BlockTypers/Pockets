@@ -102,8 +102,9 @@ public class InventoryClickListener extends PocketsListenerBase {
 		ItemStack itemWithPocket = getActivePocketItem(player);
 
 		if (itemWithPocket == null) {
-			player.sendMessage(ChatColor.RED
-					+ "The server has restated since you opened this pocket.  Please re-open it and try again.");
+			String message = plugin.getLocalizedMessage(LocalizedMessageEnum.SERVER_RESTARTED_WHILE_POCKET_WAS_OPEN.getKey(), player);
+			
+			player.sendMessage(ChatColor.RED + message);
 			event.setCancelled(true);
 			player.closeInventory();
 			return;

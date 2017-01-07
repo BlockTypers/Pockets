@@ -1,5 +1,6 @@
 package com.blocktyper.pockets;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.bukkit.Bukkit;
@@ -47,14 +48,9 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 	}
 
 	// begin localization
-	private ResourceBundle bundle = null;
-
-	public ResourceBundle getBundle() {
-		if (bundle == null)
-			bundle = ResourceBundle.getBundle(RESOURCE_NAME, locale);
-		return bundle;
+	public ResourceBundle getBundle(Locale locale) {
+		return ResourceBundle.getBundle(RESOURCE_NAME, locale);
 	}
-
 	// end localization
 
 	// pockets-test command
@@ -68,10 +64,10 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 			return false;
 
 		ItemStack[] contents = PocketsUtils.getTestItems(this);
-		
-		int inventorySize = (contents.length + 1)/9 + 1;
-		
-		Inventory testInventory = Bukkit.createInventory(null, inventorySize*9, "Testing items for Pockets");
+
+		int inventorySize = (contents.length + 1) / 9 + 1;
+
+		Inventory testInventory = Bukkit.createInventory(null, inventorySize * 9, "Testing items for Pockets");
 		testInventory.setContents(contents);
 
 		player.openInventory(testInventory);
