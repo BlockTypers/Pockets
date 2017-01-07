@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -20,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.blocktyper.serialization.CardboardBox;
-import com.google.gson.Gson;
 
 public abstract class PocketsListenerBase implements Listener {
 
@@ -31,8 +29,6 @@ public abstract class PocketsListenerBase implements Listener {
 	protected static final Material BLACKOUT_MATERIAL = Material.STAINED_GLASS_PANE;
 	protected static final String BLACKOUT_TEXT = "---";
 	protected static String POCKETS_KEY = "#PKT";
-	protected static int LORE_LINE_LENGTH_LIMIT = 500;
-	protected static final Gson JSON_HELPER = new Gson();
 
 	public PocketsListenerBase(PocketsPlugin plugin) {
 		this.plugin = plugin;
@@ -59,56 +55,9 @@ public abstract class PocketsListenerBase implements Listener {
 
 		int itemCount = contents != null ? contents.size() : 0;
 
-		String pocketsJson = JSON_HELPER.toJson(pocket);
+		String visiblePrefix = plugin.getPocketName() + " [" + itemCount + "]";
 
-		List<String> pocketsTextLines = new ArrayList<>();
-
-		int i = 0;
-		while (true) {
-			i++;
-			String prefix = i + POCKETS_KEY;
-
-			if (i == 1) {
-				prefix = UUID.randomUUID().toString() + ":" + prefix;
-			}
-
-			String prefixPlusPocketsJson = prefix + pocketsJson;
-
-			boolean isBreak = prefixPlusPocketsJson.length() <= LORE_LINE_LENGTH_LIMIT;
-
-			int endIndex = !isBreak ? LORE_LINE_LENGTH_LIMIT : prefixPlusPocketsJson.length();
-
-			pocketsTextLines.add(prefixPlusPocketsJson.substring(0, endIndex));
-
-			if (isBreak)
-				break;
-
-			pocketsJson = prefixPlusPocketsJson.substring(endIndex);
-		}
-
-		ItemMeta meta = itemWithPocket.getItemMeta();
-
-		List<String> lore = null;
-
-		if (meta.getLore() != null) {
-			lore = meta.getLore().stream().filter(l -> !loreLineIsPocket(l)).collect(Collectors.toList());
-		}
-
-		if (lore == null)
-			lore = new ArrayList<>();
-
-		List<String> pocketLore = pocketsTextLines.stream().map(l -> convertToInvisibleString(l))
-				.collect(Collectors.toList());
-
-		if (pocketLore != null && !pocketLore.isEmpty() && pocketLore.get(0) != null) {
-			String newFirtLine = plugin.getPocketName() + " [" + itemCount + "]" + pocketLore.get(0);
-			pocketLore.set(0, newFirtLine);
-		}
-
-		lore.addAll(pocketLore);
-
-		meta.setLore(lore);
-		itemWithPocket.setItemMeta(meta);
+		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket, POCKETS_KEY, visiblePrefix);
 	}
 
 	protected String getMaterialSettingConfigKey(Material material, String suffix) {
@@ -215,7 +164,7 @@ public abstract class PocketsListenerBase implements Listener {
 				ItemMeta itemMeta = blackOut.getItemMeta();
 				itemMeta.setDisplayName(BLACKOUT_TEXT);
 				itemMeta.setLore(new ArrayList<>());
-				itemMeta.getLore().add(convertToInvisibleString(i + ""));
+				itemMeta.getLore().add(plugin.getInvisibleLoreHelper().convertToInvisibleString(i + ""));
 				blackOut.setItemMeta(itemMeta);
 				pocketsInventory.setItem(i, blackOut);
 			}
@@ -318,8 +267,9 @@ public abstract class PocketsListenerBase implements Listener {
 		Pocket pocket = getPocket(itemInPocket);
 		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
 			if (!allowPocketsInPocket) {
-				if (showWarning){
-					String message = plugin.getLocalizedMessage(LocalizedMessageEnum.POCKETS_IN_POCKETS_NOT_ALLOWED.getKey(), player);
+				if (showWarning) {
+					String message = plugin
+							.getLocalizedMessage(LocalizedMessageEnum.POCKETS_IN_POCKETS_NOT_ALLOWED.getKey(), player);
 					player.sendMessage(ChatColor.RED + message);
 				}
 				return true;
@@ -331,72 +281,13 @@ public abstract class PocketsListenerBase implements Listener {
 		return false;
 	}
 
-	protected String convertToInvisibleString(String s) {
-		String hidden = "";
-		for (char c : s.toCharArray())
-			hidden += ChatColor.COLOR_CHAR + "" + c;
-		return hidden;
-	}
-
-	protected String convertToVisibleString(String s) {
-		if (s != null && !s.isEmpty()) {
-			s = s.replace(ChatColor.COLOR_CHAR + "", "");
-		}
-
-		return s;
-	}
-
-	protected boolean loreLineIsPocket(String loreLine) {
-		if (loreLine == null || loreLine.isEmpty())
-			return false;
-
-		loreLine = convertToVisibleString(loreLine);
-
-		plugin.debugInfo("Lore line: ");
-		plugin.debugInfo(loreLine);
-		plugin.debugInfo("-------------------------------");
-
-		return loreLine.contains(POCKETS_KEY);
-	}
-
 	protected Pocket getPocket(ItemStack item) {
 		return getPocket(item, true);
 	}
 
 	protected Pocket getPocket(ItemStack item, boolean hideChildPockets) {
 
-		if (item.getItemMeta() == null || item.getItemMeta().getLore() == null) {
-			plugin.debugInfo("No lore");
-			return null;
-		}
-
-		List<String> pocketLines = item.getItemMeta().getLore().stream().filter(l -> loreLineIsPocket(l))
-				.collect(Collectors.toList());
-
-		if (pocketLines == null || pocketLines.isEmpty()) {
-			plugin.debugInfo("No pocket");
-			return null;
-		}
-
-		List<String> pocketRawTexts = pocketLines.stream().map(p -> convertToVisibleString(p))
-				.collect(Collectors.toList());
-
-		if (pocketRawTexts == null || pocketRawTexts.isEmpty()) {
-			plugin.debugInfo("pocketRawTexts null or empty");
-			return null;
-		}
-
-		List<String> pocketJsonParts = pocketRawTexts.stream()
-				.map(p -> p.substring(p.indexOf(POCKETS_KEY) + POCKETS_KEY.length())).collect(Collectors.toList());
-
-		if (pocketJsonParts == null || pocketJsonParts.isEmpty()) {
-			plugin.debugInfo("pocketJsonParts null or empty");
-			return null;
-		}
-
-		String pocketJson = pocketJsonParts.stream().reduce("", (a, b) -> a + b);
-
-		Pocket pocket = plugin.deserializeJsonSafe(pocketJson, Pocket.class);
+		Pocket pocket = plugin.getInvisibleLoreHelper().getObjectFromInvisisibleLore(item, POCKETS_KEY, Pocket.class);
 
 		if (pocket != null) {
 			if (hideChildPockets && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
@@ -407,16 +298,6 @@ public abstract class PocketsListenerBase implements Listener {
 								.collect(Collectors.toList());
 				pocket.setContents(newContents);
 			}
-		} else {
-			plugin.warning("There was an unexpectedissue deserialing the pocket.");
-			plugin.warning("------");
-			plugin.warning("Parts[" + pocketJsonParts.size() + "]: ");
-			pocketJsonParts.forEach(p -> plugin.debugWarning("  -PART: " + p));
-			plugin.warning("------");
-			plugin.warning("------");
-			plugin.warning("LORE ITEMS[" + item.getItemMeta().getLore().size() + "]");
-			item.getItemMeta().getLore().forEach(l -> plugin.debugWarning(" -Lore: " + convertToVisibleString(l)));
-			plugin.warning("------");
 		}
 
 		return pocket;
