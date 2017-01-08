@@ -80,7 +80,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 		clickType = clickType != null ? clickType : DEFAULT_CLICK_TYPE;
 		
 		if(!clickType.equals(event.getClick())){
-			plugin.warning("Not a pocket action click");
+			plugin.debugInfo("Not a pocket action click");
 			return;
 		}
 
