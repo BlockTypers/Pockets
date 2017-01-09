@@ -20,7 +20,6 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
 	public static final String RESOURCE_NAME = "com.blocktyper.pockets.resources.PocketsMessages";
 
-	private String pocketName;
 	private InventoryClickListener inventoryClickListener;
 
 	public PocketsPlugin() {
@@ -30,8 +29,8 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 	public void onEnable() {
 		super.onEnable();
 		inventoryClickListener = new InventoryClickListener(this);
+		new InventoryOpenListener(this);
 		new BlockPlaceListener(this);
-		pocketName = getConfig().getString(ConfigKeyEnum.POCKET_NAME.getKey());
 		PocketsUtils.registerPocketRecipes(this);
 		this.getCommand("pockets-test").setExecutor(this);
 	}
@@ -45,9 +44,6 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
 	// recipes
 
-	public String getPocketName() {
-		return pocketName;
-	}
 
 	// begin localization
 	public ResourceBundle getBundle(Locale locale) {

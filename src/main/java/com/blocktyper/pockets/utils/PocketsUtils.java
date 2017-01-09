@@ -41,7 +41,11 @@ public class PocketsUtils {
 
 		Material outputMaterial = Material.matchMaterial(materialName);
 		
-		String defaultPocketName = plugin.getPocketName();
+		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		if (pocketRecipe == null)
+			return;
+		
+		String defaultPocketName = pocketRecipe.getName();
 
 		if (outputMaterial == null)
 			return;
@@ -52,9 +56,7 @@ public class PocketsUtils {
 		if (pocketMaterial == null)
 			return;
 
-		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		if (pocketRecipe == null)
-			return;
+		
 
 		String recipeKey = outputMaterial.name() + "-with-pocket";
 

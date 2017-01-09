@@ -21,6 +21,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.blocktyper.recipes.IRecipe;
+
 public class InventoryClickListener extends PocketsListenerBase {
 	
 	static final ClickType DEFAULT_CLICK_TYPE = ClickType.RIGHT;
@@ -31,7 +33,10 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
 	public void onInventoryCloseEvent(InventoryCloseEvent event) {
-		if (event.getInventory().getName() == null || !event.getInventory().getName().equals(plugin.getPocketName())) {
+		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, event.getPlayer());
+		
+		if (event.getInventory().getName() == null || !event.getInventory().getName().equals(pocketName)) {
 			plugin.debugInfo("Not pocket inventory closing");
 			return;
 		}
@@ -52,11 +57,6 @@ public class InventoryClickListener extends PocketsListenerBase {
 		}
 
 		Player player = ((Player) event.getWhoClicked());
-
-		if (event.getInventory().getName() != null && event.getInventory().getName().equals(plugin.getPocketName())) {
-			handlePocketClick(event, player);
-			return;
-		}
 		
 		ItemStack item = event.getCurrentItem() != null && !event.getCurrentItem().getType().equals(Material.AIR) ? event.getCurrentItem() : event.getCursor();
 
@@ -64,10 +64,25 @@ public class InventoryClickListener extends PocketsListenerBase {
 			plugin.debugInfo("item == null || item.getType().equals(Material.AIR)");
 			return;
 		}
-
-		// if we got this far, then we are not in a pocket inventory and can
-		// there for open pockets
 		
+		Pocket pocket = getPocket(item, player);
+		if (pocket == null) {
+			return;
+		}
+		
+		List<ItemStack> contents = getPocketContents(pocket);
+		setPocketJson(item, contents, player, true);
+
+		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+
+		if (event.getInventory().getName() != null && event.getInventory().getName().equals(pocketName)) {
+			// We are in a pocket inventory and must handle pocket transferrs
+			handlePocketClick(event, player);
+			return;
+		}
+
+		// if we got this far, then we are not in a pocket inventory and can open pockets
 		ClickType clickType = null;
 		
 		try {
@@ -84,7 +99,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			return;
 		}
 
-		openInventory(item, player, event);
+		openInventory(item, contents, player, event);
 	}
 
 	private void handlePocketClick(InventoryClickEvent event, Player player) {
@@ -100,6 +115,9 @@ public class InventoryClickListener extends PocketsListenerBase {
 		plugin.debugInfo("raw slot: " + event.getRawSlot());
 
 		ItemStack itemWithPocket = getActivePocketItem(player);
+		
+		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		if (itemWithPocket == null) {
 			String message = plugin.getLocalizedMessage(LocalizedMessageEnum.SERVER_RESTARTED_WHILE_POCKET_WAS_OPEN.getKey(), player);
@@ -109,7 +127,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			player.closeInventory();
 			return;
 		} else if (itemWithPocket.equals(event.getCurrentItem())) {
-			player.sendMessage(ChatColor.RED + plugin.getPocketName());
+			player.sendMessage(ChatColor.RED + pocketName);
 			event.setCancelled(true);
 			return;
 		}
@@ -124,7 +142,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		boolean clickWasInPocketInventory = event.getClickedInventory() != null
 				&& event.getClickedInventory().getName() != null
-				&& event.getClickedInventory().getName().equals(plugin.getPocketName());
+				&& event.getClickedInventory().getName().equals(pocketName);
 
 		plugin.debugInfo("clickWasInPocketInventory: " + clickWasInPocketInventory);
 

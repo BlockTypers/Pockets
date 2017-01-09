@@ -105,18 +105,11 @@ public abstract class PocketsListenerBase implements Listener {
 		return userHasPermission;
 	}
 
-	protected void openInventory(ItemStack clickedItem, Player player, Cancellable event) {
+	protected void openInventory(ItemStack clickedItem, List<ItemStack> contents, Player player, Cancellable event) {
 
 		if (!isUserPermitted(player, true, true)) {
 			return;
 		}
-
-		Pocket pocket = getPocket(clickedItem, player);
-		if (pocket == null) {
-			return;
-		}
-
-		List<ItemStack> items = getPocketContents(pocket);
 
 		int pocketSizeLimit = plugin.getConfig().getInt(
 				getMaterialSettingConfigKey(clickedItem.getType(), ConfigKeyEnum.MATERIAL_SETTING_LIMIT.getKey()));
@@ -127,19 +120,22 @@ public abstract class PocketsListenerBase implements Listener {
 			plugin.debugInfo("pocketSizeLimit [secondary]: " + pocketSizeLimit);
 		}
 
-		if (items.size() > pocketSizeLimit)
-			pocketSizeLimit = items.size();
+		if (contents.size() > pocketSizeLimit)
+			pocketSizeLimit = contents.size();
 
 		plugin.debugInfo("pocketSizeLimit [final]: " + pocketSizeLimit);
 
 		int rows = (pocketSizeLimit / INVENTORY_COLUMNS) + (pocketSizeLimit % INVENTORY_COLUMNS > 0 ? 1 : 0);
+		
+		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
-		Inventory pocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS, plugin.getPocketName());
+		Inventory pocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS, pocketName);
 
 		int i = -1;
 		boolean noPocketInPocketIssueLocated = true;
 
-		for (ItemStack item : items) {
+		for (ItemStack item : contents) {
 			if (item == null || item.getType().equals(Material.AIR))
 				continue;
 
