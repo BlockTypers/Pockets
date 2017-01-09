@@ -65,6 +65,8 @@ public class PocketsUtils {
 
 		List<String> lore = outputItem.getItemMeta().getLore();
 
+		Integer transferSourceNameSlot = 7;
+		
 		// SPS
 		// SSS
 		// SMS
@@ -76,14 +78,20 @@ public class PocketsUtils {
 		materialMatrix.add(4, Material.STRING);
 		materialMatrix.add(5, Material.STRING);
 		materialMatrix.add(6, Material.STRING);
-		materialMatrix.add(7, outputMaterial);
+		materialMatrix.add(transferSourceNameSlot, outputMaterial);
 		materialMatrix.add(8, Material.STRING);
-
 		
 
 		plugin.debugWarning("Pocket material: " + materialName);
 
 		BlockTyperRecipe recipe = new BlockTyperRecipe(recipeKey, materialMatrix, outputMaterial, plugin);
+		
+		List<Integer> transferSourceLoreAndEnchantmentMatrix = new ArrayList<>();
+		transferSourceLoreAndEnchantmentMatrix.add(transferSourceNameSlot);
+		
+		recipe.setTransferSourceLoreMatrix(transferSourceLoreAndEnchantmentMatrix);
+		recipe.setTransferSourceEnchantmentMatrix(transferSourceLoreAndEnchantmentMatrix);
+		recipe.setTransferSourceNameSlot(transferSourceNameSlot);
 		
 		if(useHidenRecipeKeys){
 			Map<Integer, String> itemHasHiddenKeyMatrix = new HashMap<>();
@@ -94,6 +102,8 @@ public class PocketsUtils {
 			itemHasHiddenKeyMatrix.put(1, defaultPocketName);
 			recipe.setItemStartsWithMatrix(itemHasHiddenKeyMatrix);
 		}
+		
+		
 		
 		List<String> defaultLore = new ArrayList<>(lore);
 		addPocketNameToLoreFirstLine(defaultLore, defaultPocketName, plugin);
@@ -130,8 +140,27 @@ public class PocketsUtils {
 		List<ItemStack> contentsList = new ArrayList<>();
 
 		// EXCALIBER
+		ItemStack exisitingChest = new ItemStack(Material.GOLD_CHESTPLATE);
+		ItemMeta exisitingChestMeta = exisitingChest.getItemMeta();
+		exisitingChestMeta.setDisplayName("Exisiting Chest No Damage");
+		List<String> exisitingChestLore = new ArrayList<>();
+		exisitingChestLore.add("Gold Chest Lore");
+		exisitingChestMeta.setLore(exisitingChestLore);
+		exisitingChestMeta.addEnchant(Enchantment.KNOCKBACK, 2, true);
+		exisitingChest.setItemMeta(exisitingChestMeta);
+		contentsList.add(exisitingChest);
+		
+		ItemStack exisitingChestWithDamage = exisitingChest.clone();
+		short durability = 40;
+		exisitingChestWithDamage.setDurability(durability);
+		ItemMeta exisitingChestWithDamageMeta = exisitingChestWithDamage.getItemMeta();
+		exisitingChestWithDamageMeta.setDisplayName("Exisiting Chest With Damage");
+		exisitingChestWithDamage.setItemMeta(exisitingChestWithDamageMeta);
+		contentsList.add(exisitingChestWithDamage);
+		
+		// EXCALIBER
 		ItemStack excaliber = new ItemStack(Material.DIAMOND_SWORD);
-		short durability = 800;
+		durability = 800;
 		excaliber.setDurability(durability);
 		ItemMeta excaliberMeta = excaliber.getItemMeta();
 		excaliberMeta.setDisplayName("Excaliber");
@@ -141,6 +170,8 @@ public class PocketsUtils {
 		excaliberMeta.addEnchant(Enchantment.KNOCKBACK, 2, true);
 		excaliber.setItemMeta(excaliberMeta);
 		contentsList.add(excaliber);
+		
+		
 
 		// DIAMOND HELM
 		ItemStack diamondHelm = new ItemStack(Material.DIAMOND_HELMET);
