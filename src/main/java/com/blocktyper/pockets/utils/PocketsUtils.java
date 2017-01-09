@@ -163,16 +163,34 @@ public class PocketsUtils {
 		goldHelmMeta.setLore(goldHelmLore);
 		goldHelm.setItemMeta(goldHelmMeta);
 		contentsList.add(goldHelm);
+		
+		// FOREIGN INVIS IN NAME GOLD_BOOTS
+		ItemStack goldBoots = new ItemStack(Material.GOLD_BOOTS);
+		ItemMeta goldBootsMeta = goldBoots.getItemMeta();
+		goldBootsMeta.setDisplayName("Foreign Invisible Text In Name" + plugin.getInvisibleLoreHelper().convertToInvisibleString("Invisible Name"));
+		goldBoots.setItemMeta(goldBootsMeta);
+		contentsList.add(goldBoots);
+				
+		// FOREIGN INVIS IN LORE DIAMOND_BOOTS
+		ItemStack diamondBoots = new ItemStack(Material.DIAMOND_BOOTS);
+		ItemMeta diamondBootsMeta = diamondBoots.getItemMeta();
+		List<String> diamondBootsLore = new ArrayList<>();
+		diamondBootsMeta.setDisplayName("Foreign Invisible Lore");
+		diamondBootsLore.add(plugin.getInvisibleLoreHelper().convertToInvisibleString("Invisible Lore"));
+		diamondBootsMeta.setLore(diamondBootsLore);
+		diamondBoots.setItemMeta(diamondBootsMeta);
+		contentsList.add(diamondBoots);
 
 		// IRON HELM
 		ItemStack ironHelm = new ItemStack(Material.IRON_HELMET);
 		plugin.getInventoryClickListener().setPocketJson(ironHelm, null, player, true);
 		contentsList.add(ironHelm);
 
-		// PUMPKIN
+		// PUMPKINS
 		ItemStack pumpkin = new ItemStack(Material.PUMPKIN);
 		plugin.getInventoryClickListener().setPocketJson(pumpkin, null, player, true);
 		contentsList.add(pumpkin);
+		contentsList.add(pumpkin.clone());
 
 		// STRING
 		ItemStack string = new ItemStack(Material.STRING, 64);

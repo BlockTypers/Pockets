@@ -119,6 +119,9 @@ public abstract class PocketsListenerBase implements Listener {
 			pocketSizeLimit = plugin.getConfig().getInt(ConfigKeyEnum.DEFAULT_POCKET_SIZE_LIMIT.getKey(), 6);
 			plugin.debugInfo("pocketSizeLimit [secondary]: " + pocketSizeLimit);
 		}
+		
+		if(contents == null)
+			contents = new ArrayList<>();
 
 		if (contents.size() > pocketSizeLimit)
 			pocketSizeLimit = contents.size();
@@ -134,12 +137,17 @@ public abstract class PocketsListenerBase implements Listener {
 
 		int i = -1;
 		boolean noPocketInPocketIssueLocated = true;
+		boolean noForeignInvisIssueFound = true;
 
 		for (ItemStack item : contents) {
 			if (item == null || item.getType().equals(Material.AIR))
 				continue;
 
-			if (pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)) {
+			if (foreignInvisIssue(clickedItem, player, noForeignInvisIssueFound)) {
+				noForeignInvisIssueFound = false;
+				tryToFitItemInPlayerInventory(item, player);
+				continue;
+			}else if (pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)) {
 				noPocketInPocketIssueLocated = false;
 				tryToFitItemInPlayerInventory(item, player);
 				continue;
@@ -179,7 +187,7 @@ public abstract class PocketsListenerBase implements Listener {
 
 		openPocketMap.put(player.getName(), clickedItem);
 
-		if (!noPocketInPocketIssueLocated) {
+		if (!noPocketInPocketIssueLocated || !noForeignInvisIssueFound) {
 			// if we had to change the contents of the inventory because had
 			// invalid pocket-in-pocket items
 			// then we need to re-save the item data before opening it.
@@ -209,15 +217,23 @@ public abstract class PocketsListenerBase implements Listener {
 
 		List<ItemStack> itemsInPocket = null;
 		boolean showPocketInPocketWarning = true;
+		boolean showForeignInvisIssue = true;
 		if (itemsInPocketTemp != null) {
 			itemsInPocket = new ArrayList<>();
 			for (ItemStack item : itemsInPocketTemp) {
-				if (item != null && pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)) {
-					showPocketInPocketWarning = false;
-					tryToFitItemInPlayerInventory(item, player);
-					continue;
+				if(item != null){
+					if (foreignInvisIssue(item, player, showForeignInvisIssue)) {
+						showForeignInvisIssue = false;
+						tryToFitItemInPlayerInventory(item, player);
+						continue;
+					}else if (pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)) {
+						showPocketInPocketWarning = false;
+						tryToFitItemInPlayerInventory(item, player);
+						continue;
+					}
+					itemsInPocket.add(item);
 				}
-				itemsInPocket.add(item);
+				
 			}
 		}
 
@@ -280,6 +296,49 @@ public abstract class PocketsListenerBase implements Listener {
 		}
 
 		return false;
+	}
+	
+	protected boolean foreignInvisIssue(ItemStack itemInPocket, HumanEntity player) {
+		return foreignInvisIssue(itemInPocket, player, true);
+	}
+	
+	protected boolean foreignInvisIssue(ItemStack itemInPocket, HumanEntity player,
+			boolean showWarning) {
+		boolean foreignInvisExists = false;
+		
+		plugin.debugInfo("$$$$$$$$$$$$$$$$ Checking foreignInvisExists: " + (itemInPocket != null ? itemInPocket.getType().name() : "null"));
+		
+		if(itemInPocket == null || itemInPocket.getItemMeta() == null){
+			foreignInvisExists = false;
+		}else if(itemInPocket.getItemMeta().getDisplayName() != null && itemInPocket.getItemMeta().getDisplayName().contains(ChatColor.COLOR_CHAR+"")){
+			foreignInvisExists = true;
+		}else if(itemInPocket.getItemMeta().getLore() == null || itemInPocket.getItemMeta().getLore().isEmpty()){
+			foreignInvisExists = false;
+		}else{
+			foreignInvisExists = itemInPocket.getItemMeta().getLore().stream().anyMatch(l -> foreignInvisIssue(l));
+		}
+		
+		if (foreignInvisExists && showWarning) {
+			String message = plugin
+					.getLocalizedMessage(LocalizedMessageEnum.FOREIGN_INVIS_NOT_ALLOWED.getKey(), player);
+			player.sendMessage(ChatColor.RED + message);
+		}
+		
+		plugin.debugInfo("$$$$$$$$$$$$$$$$$$ No foreignInvisExists");
+
+		return foreignInvisExists;
+	}
+	
+	private boolean foreignInvisIssue(String loreLine){
+		boolean foreignInvisExists = false;
+		
+		if(loreLine == null || loreLine.isEmpty() || !loreLine.contains(ChatColor.COLOR_CHAR+"")){
+			foreignInvisExists = false;
+		}else{
+			String visibleLine = plugin.getInvisibleLoreHelper().convertToVisibleString(loreLine);
+			foreignInvisExists = !visibleLine.contains(POCKETS_HIDDEN_LORE_KEY) && !BlockTyperRecipe.isHiddenRecipeKey(visibleLine);
+		}
+		return foreignInvisExists;
 	}
 
 	protected Pocket getPocket(ItemStack item, HumanEntity player) {

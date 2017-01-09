@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.bukkit.Achievement;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.ClickType;
@@ -54,28 +53,25 @@ public class InventoryOpenListener extends PocketsListenerBase {
 			}
 		}
 	}
-	
-	
-	
-	
+
 	@EventHandler
-	public void onJoin(PlayerJoinEvent event){
-	    event.getPlayer().removeAchievement(Achievement.OPEN_INVENTORY);
+	public void onJoin(PlayerJoinEvent event) {
+		event.getPlayer().removeAchievement(Achievement.OPEN_INVENTORY);
 	}
-	 
+
 	@EventHandler
-	public void onInventoryOpenEvent(PlayerAchievementAwardedEvent event){
-	    if(event.getAchievement().equals(Achievement.OPEN_INVENTORY)){
-	        event.setCancelled(true);
-	        namePockets(event.getPlayer(), event.getPlayer().getInventory());
-	    }
+	public void onInventoryOpenEvent(PlayerAchievementAwardedEvent event) {
+		if (event.getAchievement().equals(Achievement.OPEN_INVENTORY)) {
+			event.setCancelled(true);
+			namePockets(event.getPlayer(), event.getPlayer().getInventory());
+		}
 	}
-	
-	private void namePockets(HumanEntity player, Inventory inventory){
+
+	private void namePockets(HumanEntity player, Inventory inventory) {
 		if (player == null) {
 			return;
 		}
-		
+
 		if (inventory == null || inventory.getContents() == null) {
 			return;
 		}

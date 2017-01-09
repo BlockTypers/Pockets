@@ -66,20 +66,29 @@ public class InventoryClickListener extends PocketsListenerBase {
 		}
 		
 		Pocket pocket = getPocket(item, player);
-		if (pocket == null) {
-			return;
+		List<ItemStack> contents = null;
+		if (pocket != null) {
+			contents = getPocketContents(pocket);
+			setPocketJson(item, contents, player, true);
 		}
 		
-		List<ItemStack> contents = getPocketContents(pocket);
-		setPocketJson(item, contents, player, true);
+		
 
 		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		if (event.getInventory().getName() != null && event.getInventory().getName().equals(pocketName)) {
-			// We are in a pocket inventory and must handle pocket transferrs
+			// We are in a pocket inventory and must handle pocket transfers
 			handlePocketClick(event, player);
 			return;
+		}
+		
+		if (pocket == null) {
+			return;
+		}
+		
+		if (contents == null) {
+			plugin.debugInfo("Contents were null but pockt was not!");
 		}
 
 		// if we got this far, then we are not in a pocket inventory and can open pockets
@@ -98,7 +107,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			plugin.debugInfo("Not a pocket action click");
 			return;
 		}
-
+		
 		openInventory(item, contents, player, event);
 	}
 
@@ -149,37 +158,43 @@ public class InventoryClickListener extends PocketsListenerBase {
 		if (isAdditionAction(event.getAction())) {
 			if (clickWasInPocketInventory) {
 
-				if (pocketInPocketIssue(itemWithPocket, event.getCursor(), player)) {
+				ItemStack itemBeingAdded = event.getCursor();
+				
+				if(foreignInvisIssue(itemBeingAdded, player)){
+					event.setCancelled(true);
+					return;
+				}else if (pocketInPocketIssue(itemWithPocket, itemBeingAdded, player)) {
 					event.setCancelled(true);
 					return;
 				}
-
-				ItemStack itemAdded = event.getCursor();
 
 				if (event.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)) {
 					ItemStack itemRemoved = event.getCurrentItem();
-					saveInventoryAfterSwap(player, event.getClickedInventory(), itemRemoved, itemAdded);
+					saveInventoryAfterSwap(player, event.getClickedInventory(), itemRemoved, itemBeingAdded);
 				} else if (event.getAction().equals(InventoryAction.PLACE_ONE)) {
-					saveInventoryDrop(player, event.getClickedInventory(), itemAdded, 1);
+					saveInventoryDrop(player, event.getClickedInventory(), itemBeingAdded, 1);
 				} else {
-					saveInventoryDrop(player, event.getClickedInventory(), itemAdded, null);
+					saveInventoryDrop(player, event.getClickedInventory(), itemBeingAdded, null);
 				}
-
 			}
 		} else if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+			
+			ItemStack itemBeingTransferred = event.getCurrentItem();
+			
 			if (!clickWasInPocketInventory) {
-				if (pocketInPocketIssue(itemWithPocket, event.getCurrentItem(), player)) {
+				if(foreignInvisIssue(itemBeingTransferred, player)){
+					event.setCancelled(true);
+					return;
+				}else if (pocketInPocketIssue(itemWithPocket, itemBeingTransferred, player)) {
 					event.setCancelled(true);
 					return;
 				}
 			}
-
-			ItemStack itemTransferred = event.getCurrentItem();
 
 			Inventory toInventory = clickWasInPocketInventory ? player.getInventory() : event.getInventory();
 			Inventory fromInventory = event.getClickedInventory();
 
-			saveInventoryAfterTransfer(player, toInventory, fromInventory, !clickWasInPocketInventory, itemTransferred);
+			saveInventoryAfterTransfer(player, toInventory, fromInventory, !clickWasInPocketInventory, itemBeingTransferred);
 		} else if (isRemovalAction(event.getAction())) {
 			if (clickWasInPocketInventory) {
 				if (event.getAction().equals(InventoryAction.DROP_ONE_SLOT)) {
