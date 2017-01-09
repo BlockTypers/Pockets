@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.blocktyper.plugin.IBlockTyperPlugin;
 import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.PocketsListenerBase;
 import com.blocktyper.pockets.PocketsPlugin;
@@ -39,6 +40,8 @@ public class PocketsUtils {
 	private static void registerPocketRecipe(String materialName, PocketsPlugin plugin, boolean useHidenRecipeKeys) {
 
 		Material outputMaterial = Material.matchMaterial(materialName);
+		
+		String defaultPocketName = plugin.getPocketName();
 
 		if (outputMaterial == null)
 			return;
@@ -86,11 +89,13 @@ public class PocketsUtils {
 			recipe.setItemHasHiddenKeyMatrix(itemHasHiddenKeyMatrix);
 		}else{
 			Map<Integer, String> itemHasHiddenKeyMatrix = new HashMap<>();
-			itemHasHiddenKeyMatrix.put(1, plugin.getPocketName());
+			itemHasHiddenKeyMatrix.put(1, defaultPocketName);
 			recipe.setItemStartsWithMatrix(itemHasHiddenKeyMatrix);
 		}
 		
-		recipe.setLore(lore);
+		List<String> defaultLore = new ArrayList<>(lore);
+		addPocketNameToLoreFirstLine(defaultLore, defaultPocketName, plugin);
+		recipe.setLore(defaultLore);
 
 		List<String> locales = pocketRecipe.getLocales();
 		if (locales != null && !locales.isEmpty()) {
@@ -100,16 +105,23 @@ public class PocketsUtils {
 				if (pocketRecipe.getLocaleNameMap().containsKey(locale)) {
 					localePocketName = pocketRecipe.getLocaleNameMap().get(locale);
 				} else {
-					localePocketName = plugin.getPocketName();
+					localePocketName = defaultPocketName;
 				}
-				localePocketLore.add(0, localePocketName + plugin.getInvisibleLoreHelper()
-						.convertToInvisibleString(PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY));
+				
+				localePocketName = localePocketName == null ? defaultPocketName : localePocketName;
+				
+				addPocketNameToLoreFirstLine(localePocketLore, localePocketName, plugin);
 				recipe.getLocaleLoreMap().put(locale, localePocketLore);
 			}
 		}
 
 		plugin.recipeRegistrar().registerRecipe(recipe);
 
+	}
+	
+	private static void addPocketNameToLoreFirstLine(List<String> lore, String pocketName, IBlockTyperPlugin plugin){
+		lore.add(0, pocketName + plugin.getInvisibleLoreHelper()
+		.convertToInvisibleString(PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY));
 	}
 
 	public static ItemStack[] getTestItems(PocketsPlugin plugin, HumanEntity player) {
