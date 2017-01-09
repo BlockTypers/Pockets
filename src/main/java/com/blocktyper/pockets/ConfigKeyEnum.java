@@ -11,6 +11,7 @@ public enum ConfigKeyEnum {
 	OPEN_POCKET_CLICK_TYPE("open-pocket-click-type"),
 	DEFAULT_POCKET_SIZE_LIMIT("default-pocket-size-limit"),
 	DEFAULT_ALLOW_POCKET_IN_POCKET("default-allow-pocket-in-pocket"),
+	RENAME_ITEMS_ON_INVENTORY_OPEN("rename-items-on-inventory-open"),
 	OPEN_POCKET_ACTION("open-pocket-action"),
 	REQUIRE_PERMISSIONS_FOR_GENERAL_USE("require-permissions-general-pocket-use"),
 	GENERAL_USE_PERMISSIONS("permissions-for-general-pocket-use"),

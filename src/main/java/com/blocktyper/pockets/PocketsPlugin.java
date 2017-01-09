@@ -28,11 +28,20 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
 	public void onEnable() {
 		super.onEnable();
+		registerListeners();
+		PocketsUtils.registerPocketRecipes(this);
+		this.getCommand("pockets-test").setExecutor(this);
+	}
+	
+	private void registerListeners(){
 		inventoryClickListener = new InventoryClickListener(this);
 		new InventoryOpenListener(this);
 		new BlockPlaceListener(this);
-		PocketsUtils.registerPocketRecipes(this);
-		this.getCommand("pockets-test").setExecutor(this);
+		
+		if(getConfig().getBoolean(ConfigKeyEnum.RENAME_ITEMS_ON_INVENTORY_OPEN.getKey(), false)){
+			//this removes players OpenInventory achievement when they join and prevents the achievement from occurring
+			new PlayerInventoryOpenListener(this);
+		}
 	}
 
 	@Override
