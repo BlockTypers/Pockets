@@ -37,7 +37,7 @@ public class BlockPlaceListener extends PocketsListenerBase {
 			return;
 		}
 
-		Pocket pocket = getPocket(itemInHand);
+		Pocket pocket = getPocket(itemInHand, event.getPlayer());
 
 		if (pocket == null) {
 			plugin.debugInfo("[onPocketBlockPlaceEvent] pocket == null");
@@ -97,7 +97,7 @@ public class BlockPlaceListener extends PocketsListenerBase {
 			for (ItemStack drop : drops) {
 				if(drop.getType().equals(event.getBlock().getType())){
 					plugin.debugInfo("[onBlockBreakEvent] drop type matches block type");
-					setPocketJson(drop, new ArrayList<>());
+					setPocketJson(drop, new ArrayList<>(), event.getPlayer(), true);
 				}else{
 					plugin.debugInfo("[onBlockBreakEvent] drop type does not match block type");
 				}

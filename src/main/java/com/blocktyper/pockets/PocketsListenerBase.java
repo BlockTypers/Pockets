@@ -18,6 +18,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.blocktyper.recipes.BlockTyperRecipe;
+import com.blocktyper.recipes.IRecipe;
 import com.blocktyper.serialization.CardboardBox;
 
 public abstract class PocketsListenerBase implements Listener {
@@ -28,14 +30,14 @@ public abstract class PocketsListenerBase implements Listener {
 	protected static final int INVENTORY_COLUMNS = 9;
 	protected static final Material BLACKOUT_MATERIAL = Material.STAINED_GLASS_PANE;
 	protected static final String BLACKOUT_TEXT = "---";
-	protected static String POCKETS_KEY = "#PKT";
+	public static final String POCKETS_HIDDEN_LORE_KEY = "#PKT";
 
 	public PocketsListenerBase(PocketsPlugin plugin) {
 		this.plugin = plugin;
 		this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 
-	public void setPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket) {
+	public void setPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player, boolean includePrefix) {
 
 		if (itemWithPocket == null) {
 			return;
@@ -54,10 +56,13 @@ public abstract class PocketsListenerBase implements Listener {
 		pocket.setContents(contents);
 
 		int itemCount = contents != null ? contents.size() : 0;
+		
+		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
-		String visiblePrefix = plugin.getPocketName() + " [" + itemCount + "]";
+		String visiblePrefix = includePrefix ? pocketName + " [" + itemCount + "]" : null;
 
-		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket, POCKETS_KEY, visiblePrefix);
+		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket, POCKETS_HIDDEN_LORE_KEY, visiblePrefix);
 	}
 
 	protected String getMaterialSettingConfigKey(Material material, String suffix) {
@@ -106,7 +111,7 @@ public abstract class PocketsListenerBase implements Listener {
 			return;
 		}
 
-		Pocket pocket = getPocket(clickedItem);
+		Pocket pocket = getPocket(clickedItem, player);
 		if (pocket == null) {
 			return;
 		}
@@ -222,10 +227,10 @@ public abstract class PocketsListenerBase implements Listener {
 
 		if (isOnClose) {
 			plugin.debugInfo("SAVING on inventory close");
-			setPocketJson(itemWithPocket, itemsInPocket);
+			setPocketJson(itemWithPocket, itemsInPocket, player, true);
 		} else {
 			plugin.debugInfo("SAVING after inventory action");
-			setPocketJson(itemWithPocket, itemsInPocket);
+			setPocketJson(itemWithPocket, itemsInPocket, player, true);
 		}
 	}
 
@@ -264,7 +269,7 @@ public abstract class PocketsListenerBase implements Listener {
 								ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
 						defaultAllowPocketsInPocket);
 
-		Pocket pocket = getPocket(itemInPocket);
+		Pocket pocket = getPocket(itemInPocket, player);
 		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
 			if (!allowPocketsInPocket) {
 				if (showWarning) {
@@ -281,43 +286,62 @@ public abstract class PocketsListenerBase implements Listener {
 		return false;
 	}
 
-	protected Pocket getPocket(ItemStack item) {
-		return getPocket(item, true);
+	protected Pocket getPocket(ItemStack item, HumanEntity player) {
+		return getPocket(item, true, player);
 	}
 
-	protected Pocket getPocket(ItemStack item, boolean hideChildPockets) {
+	protected Pocket getPocket(ItemStack item, boolean hideChildPockets, HumanEntity player) {
 
-		Pocket pocket = plugin.getInvisibleLoreHelper().getObjectFromInvisisibleLore(item, POCKETS_KEY, Pocket.class);
+		Pocket pocket = plugin.getInvisibleLoreHelper().getObjectFromInvisisibleLore(item, POCKETS_HIDDEN_LORE_KEY, Pocket.class);
 
-		if (pocket != null) {
-			if (hideChildPockets && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
-				List<ItemStack> items = pocket.getContents().stream().map(c -> getPocketItemsHidden(c))
-						.collect(Collectors.toList());
-				List<CardboardBox> newContents = items == null ? null
-						: items.stream().filter(i -> i != null).map(i -> new CardboardBox(i))
-								.collect(Collectors.toList());
-				pocket.setContents(newContents);
+		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {			
+			List<CardboardBox> newContents = new ArrayList<>();
+			for(CardboardBox box : pocket.getContents()){
+				ItemStack unboxedItem = box != null ? (hideChildPockets ? getPocketItemsHidden(box, player) : box.unbox()) : null;
+				if(unboxedItem != null){
+					
+					if(unboxedItem.getItemMeta() != null && unboxedItem.getItemMeta().getLore() != null){
+						List<String> lore = new ArrayList<>();
+						for(String loreLine : unboxedItem.getItemMeta().getLore()){
+							if(BlockTyperRecipe.isHiddenRecipeKey(loreLine)){
+								lore.add(plugin.getInvisibleLoreHelper().convertToInvisibleString(loreLine));
+							}else{
+								lore.add(loreLine);
+							}
+						}
+
+						ItemMeta itemMeta = unboxedItem.getItemMeta();
+						itemMeta.setLore(lore);
+						unboxedItem.setItemMeta(itemMeta);
+					}
+					
+					CardboardBox newBox = new CardboardBox(unboxedItem);
+					newContents.add(newBox);
+				}else{
+					newContents.add(box);
+				}
 			}
+			pocket.setContents(newContents);
 		}
 
 		return pocket;
 	}
 
-	protected ItemStack getPocketItemsHidden(CardboardBox box) {
+	protected ItemStack getPocketItemsHidden(CardboardBox box, HumanEntity player) {
 		ItemStack item = box != null ? box.unbox() : null;
 		if (item != null) {
-			Pocket pocket = getPocket(item, false);
+			Pocket pocket = getPocket(item, false, player);
 			if (pocket != null) {
 				List<ItemStack> itemsInPocket = pocket.getContents() == null ? null
 						: pocket.getContents().stream().map(c -> c.unbox()).collect(Collectors.toList());
-				setPocketJson(item, itemsInPocket);
+				setPocketJson(item, itemsInPocket, player, true);
 			}
 		}
 		return item;
 	}
 
-	protected List<ItemStack> getPocketContents(ItemStack item, boolean hideChildPockets) {
-		return getPocketContents(getPocket(item, hideChildPockets));
+	protected List<ItemStack> getPocketContents(ItemStack item, boolean hideChildPockets, HumanEntity player) {
+		return getPocketContents(getPocket(item, hideChildPockets, player));
 	}
 
 	protected List<ItemStack> getPocketContents(Pocket pocket) {

@@ -15,6 +15,8 @@ import com.blocktyper.plugin.BlockTyperPlugin;
 import com.blocktyper.pockets.utils.PocketsUtils;
 
 public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
+	
+	public static final String POCKET_RECIPE_KEY = "pocket";
 
 	public static final String RESOURCE_NAME = "com.blocktyper.pockets.resources.PocketsMessages";
 
@@ -63,7 +65,7 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 		if (!player.isOp())
 			return false;
 
-		ItemStack[] contents = PocketsUtils.getTestItems(this);
+		ItemStack[] contents = PocketsUtils.getTestItems(this, player);
 
 		int inventorySize = (contents.length + 1) / 9 + 1;
 

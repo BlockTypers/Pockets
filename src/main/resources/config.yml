@@ -129,6 +129,11 @@ recipes:
 
 ################## BEGIN Pocket ############
 recipe.pocket.name: Pocket
+recipe.pocket.locales:
+  - de
+  - ru
+recipe.pocket.de.name: Tasche
+recipe.pocket.ru.name: Карман
 recipe.pocket.rows: 
   - III
   - RRR
@@ -137,6 +142,19 @@ recipe.pocket.mats:
   - R=RABBIT_HIDE
   - I=IRON_INGOT
 recipe.pocket.output: FLOWER_POT_ITEM
-
-
+recipe.pocket.lore: 
+  - Recipe
+  - ๑P๑
+  - ๑๑๑
+  - ๑_๑
+recipe.pocket.de.lore: 
+  - Rezept
+  - ๑T๑
+  - ๑๑๑
+  - ๑_๑
+recipe.pocket.ru.lore: 
+  - Рецепт
+  - ๑К๑
+  - ๑๑๑
+  - ๑_๑
   
