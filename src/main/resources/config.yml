@@ -136,8 +136,13 @@ recipe.pocket.name: Pocket
 recipe.pocket.locales:
   - de
   - ru
+  - fr
+  - es
 recipe.pocket.de.name: Tasche
 recipe.pocket.ru.name: Карман
+recipe.pocket.fr.name: Poche
+recipe.pocket.es.name: Bolsillo
+
 recipe.pocket.rows: 
   - III
   - RRR
@@ -159,6 +164,16 @@ recipe.pocket.de.lore:
 recipe.pocket.ru.lore: 
   - Рецепт
   - ๑К๑
+  - ๑๑๑
+  - ๑_๑
+recipe.pocket.fr.lore: 
+  - Recette
+  - ๑P๑
+  - ๑๑๑
+  - ๑_๑
+recipe.pocket.es.lore: 
+  - Receta
+  - ๑B๑
   - ๑๑๑
   - ๑_๑
   
