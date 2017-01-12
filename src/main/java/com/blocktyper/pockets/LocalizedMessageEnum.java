@@ -6,7 +6,7 @@ public enum LocalizedMessageEnum {
 	SERVER_RESTARTED_WHILE_POCKET_WAS_OPEN("pockets.server.restarted.while.pocket.was.open"),
 	PERMISSION_DENIED("pockets.permission.denied"),
 	POCKETS_IN_POCKETS_NOT_ALLOWED("pockets.pockets.in.pockets.not.allowed"),
-	FOREIGN_INVIS_NOT_ALLOWED("pockets.foreign.invis.not.allowed");
+	OBJECT_NOT_COMPATIBLE("pockets.object.not.compatible");
 
 	private String key;
 

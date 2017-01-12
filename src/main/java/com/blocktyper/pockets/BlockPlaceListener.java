@@ -15,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
+import com.blocktyper.pockets.data.Pocket;
+import com.blocktyper.pockets.listeners.PocketsListenerBase;
 import com.blocktyper.serialization.CardboardBox;
 
 import net.md_5.bungee.api.ChatColor;
@@ -97,7 +99,7 @@ public class BlockPlaceListener extends PocketsListenerBase {
 			for (ItemStack drop : drops) {
 				if(drop.getType().equals(event.getBlock().getType())){
 					plugin.debugInfo("[onBlockBreakEvent] drop type matches block type");
-					setPocketJson(drop, new ArrayList<>(), event.getPlayer(), true);
+					drop = setPocketNbt(drop, new ArrayList<>(), event.getPlayer(), true);
 				}else{
 					plugin.debugInfo("[onBlockBreakEvent] drop type does not match block type");
 				}

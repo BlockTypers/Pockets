@@ -1,4 +1,4 @@
-package com.blocktyper.pockets;
+package com.blocktyper.pockets.listeners;
 
 import java.util.List;
 
@@ -10,6 +10,9 @@ import org.bukkit.event.player.PlayerAchievementAwardedEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import com.blocktyper.pockets.PocketsPlugin;
+import com.blocktyper.pockets.data.Pocket;
 
 public class PlayerInventoryOpenListener extends PocketsListenerBase {
 
@@ -49,7 +52,7 @@ public class PlayerInventoryOpenListener extends PocketsListenerBase {
 				}
 
 				List<ItemStack> contents = getPocketContents(pocket);
-				setPocketJson(item, contents, player, true);
+				item = setPocketNbt(item, contents, player, true);
 			}
 		}
 	}

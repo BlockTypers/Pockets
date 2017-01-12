@@ -11,16 +11,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.blocktyper.nbt.ItemNBTIntegrationTest;
 import com.blocktyper.plugin.BlockTyperPlugin;
+import com.blocktyper.pockets.listeners.InventoryClickListener;
+import com.blocktyper.pockets.listeners.InventoryOpenListener;
+import com.blocktyper.pockets.listeners.PlayerInventoryOpenListener;
 import com.blocktyper.pockets.utils.PocketsUtils;
 
 public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
-	
+
 	public static final String POCKET_RECIPE_KEY = "pocket";
 
 	public static final String RESOURCE_NAME = "com.blocktyper.pockets.resources.PocketsMessages";
 
 	private InventoryClickListener inventoryClickListener;
+
+	private boolean isNBTItemAPICompatible;
+	private boolean isNBTItemAPIJsonCompatible;
 
 	public PocketsPlugin() {
 		super();
@@ -31,15 +38,21 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 		registerListeners();
 		PocketsUtils.registerPocketRecipes(this);
 		this.getCommand("pockets-test").setExecutor(this);
+
+		ItemNBTIntegrationTest itemNBTIntegrationTest = new ItemNBTIntegrationTest(this);
+		itemNBTIntegrationTest.test();
+		isNBTItemAPICompatible = itemNBTIntegrationTest.isCompatible();
+		isNBTItemAPIJsonCompatible = itemNBTIntegrationTest.isJsonCompatible();
 	}
-	
-	private void registerListeners(){
+
+	private void registerListeners() {
 		inventoryClickListener = new InventoryClickListener(this);
 		new InventoryOpenListener(this);
 		new BlockPlaceListener(this);
-		
-		if(getConfig().getBoolean(ConfigKeyEnum.RENAME_ITEMS_ON_INVENTORY_OPEN.getKey(), false)){
-			//this removes players OpenInventory achievement when they join and prevents the achievement from occurring
+
+		if (getConfig().getBoolean(ConfigKeyEnum.RENAME_ITEMS_ON_INVENTORY_OPEN.getKey(), false)) {
+			// this removes players OpenInventory achievement when they join and
+			// prevents the achievement from occurring
 			new PlayerInventoryOpenListener(this);
 		}
 	}
@@ -52,7 +65,6 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 	}
 
 	// recipes
-
 
 	// begin localization
 	public ResourceBundle getBundle(Locale locale) {
@@ -83,6 +95,14 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
 	public InventoryClickListener getInventoryClickListener() {
 		return inventoryClickListener;
+	}
+
+	public boolean isNbtItemAPICompatible() {
+		return isNBTItemAPICompatible;
+	}
+
+	public boolean isNBTItemAPIJsonCompatible() {
+		return isNBTItemAPIJsonCompatible;
 	}
 
 }

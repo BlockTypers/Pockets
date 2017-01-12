@@ -1,4 +1,4 @@
-package com.blocktyper.pockets;
+package com.blocktyper.pockets.data;
 
 import java.util.ArrayList;
 import java.util.List;
