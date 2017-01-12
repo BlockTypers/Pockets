@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.blocktyper.nbt.NBTItem;
 import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
@@ -22,6 +23,8 @@ import com.blocktyper.recipes.IRecipe;
 public class InventoryClickListener extends PocketsListenerBase {
 
 	static final ClickType DEFAULT_CLICK_TYPE = ClickType.RIGHT;
+	
+	private static boolean debugNbtTags = false;
 
 	public InventoryClickListener(PocketsPlugin plugin) {
 		super(plugin);
@@ -69,7 +72,9 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		if (itemIsInvalid(item))
 			return;
-
+		
+		debugNbtTags(item);
+		
 		if (clickedItemIsOpenPocket(player, event.getCurrentItem(), true)) {
 			event.setCancelled(true);
 			return;
@@ -259,6 +264,56 @@ public class InventoryClickListener extends PocketsListenerBase {
 	private boolean isRemovalAction(InventoryAction action) {
 		return action.equals(InventoryAction.PICKUP_ALL) || action.equals(InventoryAction.PICKUP_HALF)
 				|| action.equals(InventoryAction.PICKUP_ONE) || action.equals(InventoryAction.DROP_ONE_SLOT);
+	}
+	
+	
+	/**
+	 * 
+	 * @param item
+	 */
+	private void debugNbtTags(ItemStack item){
+		if(debugNbtTags){
+			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			plugin.debugInfo("NBT Tags:");
+			NBTItem nbtItem = new NBTItem(item);
+	        if(nbtItem.getKeys() != null && !nbtItem.getKeys().isEmpty()){
+	        	for(String key : nbtItem.getKeys()){
+	        		boolean found = false;
+	        		plugin.debugInfo("Key: " + key) ;
+	        		String asString = nbtItem.getString(key);
+	        		if(asString != null){
+	        			plugin.debugInfo("  -String ("+asString.length()+"):  " + asString);
+	        			found = true;
+	        		}
+	        		
+	        		Double asDouble = nbtItem.getDouble(key);
+	        		if(asDouble != null){
+	        			plugin.debugInfo("  -Double:  " + asDouble);
+	        			found = true;
+	        		}
+	        		
+	        		Integer asInteger = nbtItem.getInteger(key);
+	        		if(asInteger != null){
+	        			plugin.debugInfo("  -Integer: " + asInteger);
+	        			found = true;
+	        		}
+	        		
+	        		Boolean asBoolean = nbtItem.getBoolean(key);
+	        		if(asBoolean != null){
+	        			plugin.debugInfo("  -Boolean: " + asBoolean);
+	        			found = true;
+	        		}
+	        		
+	        		if(!found)
+	        			plugin.debugInfo("  -NULL");
+	        	}
+	        }
+	        plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+		}
 	}
 
 }
