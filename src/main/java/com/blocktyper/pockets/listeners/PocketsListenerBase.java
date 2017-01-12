@@ -385,7 +385,8 @@ public abstract class PocketsListenerBase implements Listener {
 
 		plugin.debugInfo("Contents: " + (contents != null ? contents.size() : 0));
 
-		setLoreWithPocketSizeAdded(itemWithPocket, contents, player);
+		if(includePrefix)
+			setLoreWithPocketSizeAdded(itemWithPocket, contents, player);
 
 		NBTItem nbtItem = new NBTItem(itemWithPocket);
 

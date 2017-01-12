@@ -79,8 +79,6 @@ public class PocketsUtils {
 		ItemStack outputItem = new ItemStack(outputMaterial);
 		outputItem = plugin.getInventoryClickListener().setPocketNbt(outputItem, new ArrayList<>(), null, false);
 
-		List<String> lore = outputItem.getItemMeta().getLore();
-
 		Integer transferSourceNameSlot = 7;
 		
 		// SPS
@@ -118,14 +116,14 @@ public class PocketsUtils {
 		
 		
 		
-		List<String> defaultLore = new ArrayList<>(lore);
+		List<String> defaultLore = new ArrayList<>();
 		addPocketNameToLoreFirstLine(defaultLore, defaultPocketName, plugin);
 		recipe.setLore(defaultLore);
 
 		List<String> locales = pocketRecipe.getLocales();
 		if (locales != null && !locales.isEmpty()) {
 			for (String locale : locales) {
-				List<String> localePocketLore = new ArrayList<>(lore);
+				List<String> localePocketLore = new ArrayList<>();
 				String localePocketName = null;
 				if (pocketRecipe.getLocaleNameMap().containsKey(locale)) {
 					localePocketName = pocketRecipe.getLocaleNameMap().get(locale);
@@ -147,7 +145,7 @@ public class PocketsUtils {
 	}
 	
 	private static void addPocketNameToLoreFirstLine(List<String> lore, String pocketName, IBlockTyperPlugin plugin){
-		//lore.add(0, pocketName + InvisibleLoreHelper.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY));
+		lore.add(0, pocketName + "[0]" + InvisibleLoreHelper.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY));
 	}
 
 	public static ItemStack[] getTestItems(PocketsPlugin plugin, HumanEntity player) {
