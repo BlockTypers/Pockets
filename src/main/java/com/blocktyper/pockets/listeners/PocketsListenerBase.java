@@ -535,14 +535,7 @@ public abstract class PocketsListenerBase implements Listener {
 	 * @return
 	 */
 	protected List<String> removeOldInvisibleLore(ItemStack itemWithPocket, HumanEntity player, String invisibelKey) {
-		List<String> lore = InvisibleLoreHelper.getNonInvisibleLore(itemWithPocket, invisibelKey);
-		if (lore == null)
-			lore = new ArrayList<>();
-
-		ItemMeta itemMeta = itemWithPocket.getItemMeta();
-		itemMeta.setLore(lore);
-		itemWithPocket.setItemMeta(itemMeta);
-		return lore;
+		return InvisibleLoreHelper.removeLoreWithInvisibleKey(itemWithPocket, player, invisibelKey);
 	}
 
 	
@@ -718,7 +711,7 @@ public abstract class PocketsListenerBase implements Listener {
 		
 		Inventory inventory = getActiveInventory(player);
 		NBTItem pocketNbtItem = new NBTItem(getActivePocketItem(player));
-		String uniqueId = pocketNbtItem.getString(BlockTyperRecipe.NBT_BLOCKTYPER_UNIQUE_ID);
+		String uniqueId = pocketNbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID);
 		if (uniqueId == null) {
 			plugin.warning("#############################################");
 			plugin.warning("########### Pocket did not have unique ID!");
@@ -743,7 +736,7 @@ public abstract class PocketsListenerBase implements Listener {
 			for (ItemStack itemInInventory : inventory.getContents()) {
 				if(itemInInventory != null){
 					NBTItem nbtItem = new NBTItem(itemInInventory);
-					if (uniqueId.equals(nbtItem.getString(BlockTyperRecipe.NBT_BLOCKTYPER_UNIQUE_ID))) {
+					if (uniqueId.equals(nbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID))) {
 						indexWhereMatchLocated = index;
 					}
 				}
@@ -790,7 +783,7 @@ public abstract class PocketsListenerBase implements Listener {
 		NBTItem nbtItem = new NBTItem(itemWithPocket);
 		plugin.debugInfo("Setting Old pocket as object: " + itemWithPocket.getType().name());
 		nbtItem.setObject(POCKET_NBT_JSON_KEY, pocket);
-		nbtItem.setString(BlockTyperRecipe.NBT_BLOCKTYPER_UNIQUE_ID, UUID.randomUUID().toString());
+		nbtItem.setString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID, UUID.randomUUID().toString());
 		plugin.debugInfo("Done setting Old pocket as object");
 		itemWithPocket = nbtItem.getItem();
 		plugin.debugInfo("Getting item back from Old pocket as object");
@@ -835,13 +828,13 @@ public abstract class PocketsListenerBase implements Listener {
 		}
 
 		NBTItem nbtItem = new NBTItem(item);
-		if (nbtItem.hasKey(BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY)) {
-			plugin.debugInfo(BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " found: "
-					+ nbtItem.getString((BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY)));
+		if (nbtItem.hasKey(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY)) {
+			plugin.debugInfo(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " found: "
+					+ nbtItem.getString((IRecipe.NBT_BLOCKTYPER_RECIPE_KEY)));
 		} else if (isVersion1Pocket) {
 			String recipeKey = PocketsPlugin.POCKET_RECIPE_KEY;
-			nbtItem.setString(BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY, recipeKey);
-			plugin.debugInfo(BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " set isVersion1Pocket: " + recipeKey);
+			nbtItem.setString(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY, recipeKey);
+			plugin.debugInfo(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " set isVersion1Pocket: " + recipeKey);
 			return nbtItem.getItem();
 		} else if (item.getItemMeta().getLore() != null && !item.getItemMeta().getLore().isEmpty()) {
 			Optional<String> optional = item.getItemMeta().getLore().stream().filter(l -> isHiddenRecipeKey(l))
@@ -849,8 +842,8 @@ public abstract class PocketsListenerBase implements Listener {
 
 			if (optional != null && optional.isPresent()) {
 				String recipeKey = BlockTyperRecipe.getKeyFromLoreLine(optional.get());
-				nbtItem.setString(BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY, recipeKey);
-				plugin.debugInfo(BlockTyperRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " set: " + recipeKey);
+				nbtItem.setString(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY, recipeKey);
+				plugin.debugInfo(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " set: " + recipeKey);
 				return nbtItem.getItem();
 			}
 		}
