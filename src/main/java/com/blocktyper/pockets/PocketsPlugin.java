@@ -20,7 +20,9 @@ import com.blocktyper.pockets.utils.PocketsUtils;
 
 public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
+	private static final String RECIPES_KEY = "POCKETS_RECIPE_KEY";
 	public static final String POCKET_RECIPE_KEY = "pocket";
+	public static final String DEFAULT_POCKET_COLOR = "§5";
 
 	public static final String RESOURCE_NAME = "com.blocktyper.pockets.resources.PocketsMessages";
 
@@ -28,6 +30,8 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
 	private boolean isNBTItemAPICompatible;
 	private boolean isNBTItemAPIJsonCompatible;
+	
+	
 
 	public PocketsPlugin() {
 		super();
@@ -103,6 +107,11 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 
 	public boolean isNBTItemAPIJsonCompatible() {
 		return isNBTItemAPIJsonCompatible;
+	}
+
+	@Override
+	public String getRecipesNbtKey() {
+		return RECIPES_KEY;
 	}
 
 }

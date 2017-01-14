@@ -17,6 +17,7 @@ public enum ConfigKeyEnum {
 	GENERAL_USE_PERMISSIONS("permissions-for-general-pocket-use"),
 	REQUIRE_PERMISSIONS_FOR_POCKET_IN_POCKET_USE("require-permissions-pocket-in-pocket-use"),
 	POCKET_IN_POCKET_USE_USE_PERMISSIONS("permissions-for-pocket-in-pocket-use"),
+	DEFAULT_POCKET_COLOR("default-pocket-color")
 	;
 
 

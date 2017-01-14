@@ -14,6 +14,8 @@ open-pocket-action: RIGHT
 #so that the server can know each time they open their inventory
 rename-items-on-inventory-open: false
 
+default-pocket-color: §5
+
 
 materials-which-can-have-pockets:
 - LEATHER_HELMET
@@ -124,7 +126,7 @@ material-settings:
     limit: 12
     allow-pocket-in-pocket: true
 
-
+recipes-settings.continuous-translation: true
 
 ############## RECIPES ############
 recipes:
@@ -152,28 +154,30 @@ recipe.pocket.mats:
   - I=IRON_INGOT
 recipe.pocket.output: FLOWER_POT_ITEM
 recipe.pocket.lore: 
-  - Recipe
-  - ๑P๑
-  - ๑๑๑
-  - ๑_๑
+  - §ARecipe
+  - §5๑P๑
+  - §5๑๑๑
+  - §5๑_๑
 recipe.pocket.de.lore: 
-  - Rezept
-  - ๑T๑
-  - ๑๑๑
-  - ๑_๑
+  - §ARezept
+  - §5๑T๑
+  - §5๑๑๑
+  - §5๑_๑
 recipe.pocket.ru.lore: 
-  - Рецепт
-  - ๑К๑
-  - ๑๑๑
-  - ๑_๑
+  - §AРецепт
+  - §5๑К๑
+  - §5๑๑๑
+  - §5๑_๑
 recipe.pocket.fr.lore: 
-  - Recette
-  - ๑P๑
-  - ๑๑๑
-  - ๑_๑
+  - §ARecette
+  - §5๑P๑
+  - §5๑๑๑
+  - §5๑_๑
 recipe.pocket.es.lore: 
   - Receta
-  - ๑B๑
-  - ๑๑๑
-  - ๑_๑
+  - §5๑B๑
+  - §5๑๑๑
+  - §5๑_๑
   
+  
+messages.pockets-pockets-in-pockets-not-allowed.en: That's a no no!

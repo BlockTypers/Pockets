@@ -29,7 +29,7 @@ public class PocketsUtils {
 
 	public static void registerPocketRecipes(PocketsPlugin plugin) {
 		List<String> mats = plugin.getConfig().getStringList(ConfigKeyEnum.MATERIALS_WHICH_CAN_HAVE_POCKETS.getKey());
-		
+
 		Map<String, String> nbtStringData = new HashMap<>();
 		NBTItem nbtItem = new NBTItem(new ItemStack(Material.STONE));
 		nbtItem.setObject(PocketsListenerBase.POCKET_NBT_JSON_KEY, new Pocket());
@@ -46,21 +46,21 @@ public class PocketsUtils {
 		// outputMaterial, amount, opOnly, materialMatrix, itemStartsWithMatrix,
 		// recipeKeepMatrix, plugin, listenersList);
 	}
-	
 
-	public static String getPocketWithPocketRecipeKey(Material material){
+	public static String getPocketWithPocketRecipeKey(Material material) {
 		String recipeKey = material.name() + "-with-pocket";
 		return recipeKey;
 	}
-	
-	private static void registerPocketRecipe(String materialName, PocketsPlugin plugin, Map<String, String> nbtStringData) {
+
+	private static void registerPocketRecipe(String materialName, PocketsPlugin plugin,
+			Map<String, String> nbtStringData) {
 
 		Material outputMaterial = Material.matchMaterial(materialName);
-		
+
 		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		if (pocketRecipe == null)
 			return;
-		
+
 		String defaultPocketName = pocketRecipe.getName();
 
 		if (outputMaterial == null)
@@ -72,15 +72,13 @@ public class PocketsUtils {
 		if (pocketMaterial == null)
 			return;
 
-		
-
 		String recipeKey = getPocketWithPocketRecipeKey(outputMaterial);
 
 		ItemStack outputItem = new ItemStack(outputMaterial);
 		outputItem = plugin.getInventoryClickListener().setPocketNbt(outputItem, new ArrayList<>(), null, false);
 
 		Integer transferSourceNameSlot = 7;
-		
+
 		// SPS
 		// SSS
 		// SMS
@@ -94,58 +92,56 @@ public class PocketsUtils {
 		materialMatrix.add(6, Material.STRING);
 		materialMatrix.add(transferSourceNameSlot, outputMaterial);
 		materialMatrix.add(8, Material.STRING);
-		
 
 		plugin.debugWarning("Pocket material: " + materialName);
 
 		BlockTyperRecipe recipe = new BlockTyperRecipe(recipeKey, materialMatrix, outputMaterial, plugin);
-		
+
 		List<Integer> transferSourceLoreAndEnchantmentMatrix = new ArrayList<>();
 		transferSourceLoreAndEnchantmentMatrix.add(transferSourceNameSlot);
-		
+
 		recipe.setTransferSourceLoreMatrix(transferSourceLoreAndEnchantmentMatrix);
 		recipe.setTransferSourceEnchantmentMatrix(transferSourceLoreAndEnchantmentMatrix);
 		recipe.setTransferSourceNameSlot(transferSourceNameSlot);
-		
+
 		Map<Integer, String> itemHasNbtKeyMatrix = new HashMap<>();
 		itemHasNbtKeyMatrix.put(1, PocketsPlugin.POCKET_RECIPE_KEY);
 		recipe.setItemHasNbtKeyMatrix(itemHasNbtKeyMatrix);
-		
-		
+
 		recipe.setNbtStringData(nbtStringData);
-		
-		
-		
-		List<String> defaultLore = new ArrayList<>();
-		addPocketNameToLoreFirstLine(defaultLore, defaultPocketName, plugin);
-		recipe.setLore(defaultLore);
+
+		List<String> defaultInitialLore = new ArrayList<>();
+		addPocketNameToLoreFirstLine(defaultInitialLore, defaultPocketName, plugin);
+		recipe.setInitialLore(defaultInitialLore);
 
 		List<String> locales = pocketRecipe.getLocales();
 		if (locales != null && !locales.isEmpty()) {
 			for (String locale : locales) {
-				List<String> localePocketLore = new ArrayList<>();
+				List<String> localeInitialPocketLore = new ArrayList<>();
 				String localePocketName = null;
 				if (pocketRecipe.getLocaleNameMap().containsKey(locale)) {
 					localePocketName = pocketRecipe.getLocaleNameMap().get(locale);
 				} else {
 					localePocketName = defaultPocketName;
 				}
-				
+
 				localePocketName = localePocketName == null ? defaultPocketName : localePocketName;
-				
-				addPocketNameToLoreFirstLine(localePocketLore, localePocketName, plugin);
-				recipe.getLocaleLoreMap().put(locale, localePocketLore);
+
+				addPocketNameToLoreFirstLine(localeInitialPocketLore, localePocketName, plugin);
+				recipe.getLocaleInitialLoreMap().put(locale, localeInitialPocketLore);
 			}
 		}
-		
+
 		recipe.setNonStacking(true);
 
 		plugin.recipeRegistrar().registerRecipe(recipe);
 
 	}
-	
-	private static void addPocketNameToLoreFirstLine(List<String> lore, String pocketName, IBlockTyperPlugin plugin){
-		lore.add(0, pocketName + "[0]" + InvisibleLoreHelper.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY));
+
+	private static void addPocketNameToLoreFirstLine(List<String> lore, String pocketName, IBlockTyperPlugin plugin) {
+		String invisiblePrefix = InvisibleLoreHelper.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY);
+		lore.add(0, invisiblePrefix + plugin.getConfig().getString(ConfigKeyEnum.DEFAULT_POCKET_COLOR.getKey(),
+				PocketsPlugin.DEFAULT_POCKET_COLOR) + pocketName + " [0]");
 	}
 
 	public static ItemStack[] getTestItems(PocketsPlugin plugin, HumanEntity player) {
@@ -161,7 +157,7 @@ public class PocketsUtils {
 		exisitingChestMeta.addEnchant(Enchantment.KNOCKBACK, 2, true);
 		exisitingChest.setItemMeta(exisitingChestMeta);
 		contentsList.add(exisitingChest);
-		
+
 		// EXCALIBER
 		ItemStack excaliber = new ItemStack(Material.DIAMOND_SWORD);
 		short durability = 800;
@@ -174,9 +170,7 @@ public class PocketsUtils {
 		excaliberMeta.addEnchant(Enchantment.KNOCKBACK, 2, true);
 		excaliber.setItemMeta(excaliberMeta);
 		contentsList.add(excaliber);
-		
-		
-		
+
 		// OLD POCKET
 		ItemStack oldPocketedItem = new ItemStack(Material.DIAMOND_HELMET);
 		ItemMeta oldPocketedItemMeta = oldPocketedItem.getItemMeta();
@@ -188,7 +182,6 @@ public class PocketsUtils {
 		oldPocketedItem.setItemMeta(oldPocketedItemMeta);
 		setLegacyPocketJson(oldPocketedItem, Arrays.asList(new ItemStack(Material.STONE)), player, true, plugin);
 		contentsList.add(oldPocketedItem);
-		
 
 		// DIAMOND HELM
 		ItemStack diamondHelm = new ItemStack(Material.DIAMOND_HELMET);
@@ -211,14 +204,15 @@ public class PocketsUtils {
 		goldHelmMeta.setLore(goldHelmLore);
 		goldHelm.setItemMeta(goldHelmMeta);
 		contentsList.add(goldHelm);
-		
+
 		// FOREIGN INVIS IN NAME GOLD_BOOTS
 		ItemStack goldBoots = new ItemStack(Material.GOLD_BOOTS);
 		ItemMeta goldBootsMeta = goldBoots.getItemMeta();
-		goldBootsMeta.setDisplayName("Foreign Invisible Text In Name" + InvisibleLoreHelper.convertToInvisibleString("Invisible Name"));
+		goldBootsMeta.setDisplayName(
+				"Foreign Invisible Text In Name" + InvisibleLoreHelper.convertToInvisibleString("Invisible Name"));
 		goldBoots.setItemMeta(goldBootsMeta);
 		contentsList.add(goldBoots);
-				
+
 		// FOREIGN INVIS IN LORE DIAMOND_BOOTS
 		ItemStack diamondBoots = new ItemStack(Material.DIAMOND_BOOTS);
 		ItemMeta diamondBootsMeta = diamondBoots.getItemMeta();
@@ -254,11 +248,12 @@ public class PocketsUtils {
 		contentsList.add(ironIngot);
 
 		// POCKETS
-		
-		ItemStack pocket = plugin.recipeRegistrar().getItemFromRecipe(PocketsPlugin.POCKET_RECIPE_KEY, player, null, -1);
+
+		ItemStack pocket = plugin.recipeRegistrar().getItemFromRecipe(PocketsPlugin.POCKET_RECIPE_KEY, player, null,
+				-1);
 		pocket.setAmount(3);
 		contentsList.add(pocket);
-		
+
 		// hidden lore Pocket
 		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		ItemStack hidenLorePocket = new ItemStack(pocket.getType(), 2);
@@ -271,15 +266,13 @@ public class PocketsUtils {
 		hidenLorePocketMeta.setDisplayName(plugin.recipeRegistrar().getNameConsiderLocalization(pocketRecipe, player));
 		hidenLorePocket.setItemMeta(hidenLorePocketMeta);
 		contentsList.add(hidenLorePocket);
-		
+
 		// Original Pocket
 		ItemStack flowerPocket = new ItemStack(pocket.getType(), 1);
 		ItemMeta flowerPocketMeta = diamondBoots.getItemMeta();
 		flowerPocketMeta.setDisplayName(pocketRecipe.getName());
 		flowerPocket.setItemMeta(flowerPocketMeta);
 		contentsList.add(flowerPocket);
-		
-		
 
 		// SADDLE
 		ItemStack saddle = new ItemStack(Material.SADDLE);
@@ -329,9 +322,9 @@ public class PocketsUtils {
 		ItemStack[] contents = contentsList.toArray(new ItemStack[contentsList.size()]);
 		return contents;
 	}
-	
-	
-	public static void setLegacyPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player, boolean includePrefix, PocketsPlugin plugin) {
+
+	public static void setLegacyPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player,
+			boolean includePrefix, PocketsPlugin plugin) {
 
 		if (itemWithPocket == null) {
 			return;
@@ -350,12 +343,13 @@ public class PocketsUtils {
 		pocket.setContents(contents);
 
 		int itemCount = contents != null ? contents.size() : 0;
-		
+
 		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		String visiblePrefix = includePrefix ? pocketName + " [" + itemCount + "]" : null;
 
-		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket, PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY, visiblePrefix);
+		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket,
+				PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY, visiblePrefix);
 	}
 }

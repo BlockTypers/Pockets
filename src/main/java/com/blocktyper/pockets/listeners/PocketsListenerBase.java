@@ -49,9 +49,9 @@ public abstract class PocketsListenerBase implements Listener {
 	public static final String POCKET_NBT_JSON_KEY = "pocket.json";
 
 	private OldPocketHelper oldPocketHelper;
-	
+
 	public static Set<Material> INCOMPATIBLE_MATERIALS;
-	static{
+	static {
 		INCOMPATIBLE_MATERIALS = new HashSet<>();
 		INCOMPATIBLE_MATERIALS.add(Material.BOOK_AND_QUILL);
 		INCOMPATIBLE_MATERIALS.add(Material.WRITTEN_BOOK);
@@ -73,7 +73,7 @@ public abstract class PocketsListenerBase implements Listener {
 	///////////////////////
 	// AUTH//////////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param player
@@ -116,8 +116,7 @@ public abstract class PocketsListenerBase implements Listener {
 
 		return userHasPermission;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param itemInPocket
@@ -126,10 +125,10 @@ public abstract class PocketsListenerBase implements Listener {
 	 * @return
 	 */
 	protected boolean incompatibleIssue(ItemStack itemInPocket, HumanEntity player, boolean sendMessage) {
-		if(itemInPocket != null && INCOMPATIBLE_MATERIALS.contains(itemInPocket.getType())){
-			if(sendMessage){
-				String message = plugin
-						.getLocalizedMessage(LocalizedMessageEnum.OBJECT_NOT_COMPATIBLE.getKey(), player);
+		if (itemInPocket != null && INCOMPATIBLE_MATERIALS.contains(itemInPocket.getType())) {
+			if (sendMessage) {
+				String message = plugin.getLocalizedMessage(LocalizedMessageEnum.OBJECT_NOT_COMPATIBLE.getKey(),
+						player);
 				player.sendMessage(ChatColor.RED + message);
 			}
 			return true;
@@ -137,7 +136,6 @@ public abstract class PocketsListenerBase implements Listener {
 		return false;
 	}
 
-	
 	/**
 	 * 
 	 * @param itemWithPocket
@@ -149,7 +147,6 @@ public abstract class PocketsListenerBase implements Listener {
 		return pocketInPocketIssue(itemWithPocket, itemInPocket, player, true);
 	}
 
-	
 	/**
 	 * 
 	 * @param itemWithPocket
@@ -188,7 +185,7 @@ public abstract class PocketsListenerBase implements Listener {
 	///////////////////////
 	// INVENTORY//////////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param clickedItem
@@ -236,11 +233,11 @@ public abstract class PocketsListenerBase implements Listener {
 
 			if (pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)) {
 				noPocketInPocketIssueLocated = itemCanGoInPocket = false;
-			}else if(incompatibleIssue(item, player, noIncompatibleIssue)){
+			} else if (incompatibleIssue(item, player, noIncompatibleIssue)) {
 				noIncompatibleIssue = itemCanGoInPocket = false;
 			}
-			
-			if(!itemCanGoInPocket){
+
+			if (!itemCanGoInPocket) {
 				tryToFitItemInPlayerInventory(item, player);
 				continue;
 			}
@@ -278,21 +275,21 @@ public abstract class PocketsListenerBase implements Listener {
 			saveInventoryIntoItem(player, pocketsInventory, true);
 		}
 
-		//PocketDelayOpener pocketDelayOpener = new PocketDelayOpener(plugin, player, pocketsInventory);
-		//pocketDelayOpener.runTaskLater(plugin, 5L * 1);
-		
+		// PocketDelayOpener pocketDelayOpener = new PocketDelayOpener(plugin,
+		// player, pocketsInventory);
+		// pocketDelayOpener.runTaskLater(plugin, 5L * 1);
+
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				player.closeInventory();
 				PocketsListenerBase.AddPlayerWithPocketInventoryOpen(player, pocketsInventory);
 				player.openInventory(pocketsInventory);
-				
+
 			}
 		}.runTaskLater(plugin, 1L);
 	}
 
-	
 	/**
 	 * 
 	 * @param material
@@ -303,12 +300,10 @@ public abstract class PocketsListenerBase implements Listener {
 		return ConfigKeyEnum.MATERIAL_SETTINGS.getKey() + "." + material.name() + "." + suffix;
 	}
 
-	
-	
 	///////////////////////
 	// RETREIVAL////////////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param item
@@ -343,13 +338,10 @@ public abstract class PocketsListenerBase implements Listener {
 				: pocket.getContents().stream().filter(c -> c != null).map(c -> c.unbox()).collect(Collectors.toList());
 	}
 
-	
-	
-	
 	///////////////////////
 	// PERSISTENCE//////////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param itemWithPocket
@@ -385,7 +377,7 @@ public abstract class PocketsListenerBase implements Listener {
 
 		plugin.debugInfo("Contents: " + (contents != null ? contents.size() : 0));
 
-		if(includePrefix)
+		if (includePrefix)
 			setLoreWithPocketSizeAdded(itemWithPocket, contents, player);
 
 		NBTItem nbtItem = new NBTItem(itemWithPocket);
@@ -397,7 +389,6 @@ public abstract class PocketsListenerBase implements Listener {
 		return itemWithPocket;
 	}
 
-	
 	/**
 	 * 
 	 * @param player
@@ -407,7 +398,6 @@ public abstract class PocketsListenerBase implements Listener {
 		saveInventoryIntoItem(player, inventory, false);
 	}
 
-	
 	/**
 	 * 
 	 * @param player
@@ -433,22 +423,21 @@ public abstract class PocketsListenerBase implements Listener {
 		if (itemsInPocketTemp != null) {
 			itemsInPocket = new ArrayList<>();
 			for (ItemStack item : itemsInPocketTemp) {
-				
+
 				if (item != null) {
-					
-					if (pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)){
+
+					if (pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)) {
 						showPocketInPocketWarning = false;
 						tryToFitItemInPlayerInventory(item, player);
 						inventory.remove(item);
-					}
-					else if (incompatibleIssue(item, player, showIncompatibleWarning)){
+					} else if (incompatibleIssue(item, player, showIncompatibleWarning)) {
 						showIncompatibleWarning = false;
 						tryToFitItemInPlayerInventory(item, player);
 						inventory.remove(item);
-					}else{
+					} else {
 						itemsInPocket.add(item);
 					}
-						
+
 				}
 
 			}
@@ -465,12 +454,10 @@ public abstract class PocketsListenerBase implements Listener {
 		setActivePocketItem(player, itemWithPocket);
 	}
 
-	
-	
 	///////////////////////
 	// INVENTORY HELPERS////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param item
@@ -489,7 +476,6 @@ public abstract class PocketsListenerBase implements Listener {
 		return true;
 	}
 
-	
 	/**
 	 * 
 	 * @param item
@@ -503,12 +489,10 @@ public abstract class PocketsListenerBase implements Listener {
 		}
 	}
 
-	
-	
 	///////////////////////
 	// INVIS DATA HELPERS////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param contents
@@ -523,10 +507,10 @@ public abstract class PocketsListenerBase implements Listener {
 
 		String invisiblePrefix = InvisibleLoreHelper.convertToInvisibleString(POCKETS_SIZE_HIDDEN_LORE_KEY);
 
-		return invisiblePrefix + ChatColor.DARK_PURPLE + pocketName + " [" + itemCount + "]";
+		return invisiblePrefix + plugin.getConfig().getString(ConfigKeyEnum.DEFAULT_POCKET_COLOR.getKey(),
+				PocketsPlugin.DEFAULT_POCKET_COLOR) + pocketName + " [" + itemCount + "]";
 	}
 
-	
 	/**
 	 * 
 	 * @param itemWithPocket
@@ -538,7 +522,6 @@ public abstract class PocketsListenerBase implements Listener {
 		return InvisibleLoreHelper.removeLoreWithInvisibleKey(itemWithPocket, player, invisibelKey);
 	}
 
-	
 	/**
 	 * 
 	 * @param itemWithPocket
@@ -555,7 +538,6 @@ public abstract class PocketsListenerBase implements Listener {
 		itemWithPocket.setItemMeta(itemMeta);
 	}
 
-	
 	/**
 	 * 
 	 * @param loreLine
@@ -566,14 +548,12 @@ public abstract class PocketsListenerBase implements Listener {
 		return BlockTyperRecipe.isHiddenRecipeKey(visibleLine);
 	}
 
-	
 	///////////////////////
 	// ACTIVE POCKET////
 	///////////////////////
-	
+
 	protected static Map<HumanEntity, Inventory> playersWithOpenInventories = new HashMap<HumanEntity, Inventory>();
 
-	
 	/**
 	 * 
 	 * @param player
@@ -583,7 +563,6 @@ public abstract class PocketsListenerBase implements Listener {
 		playersWithOpenInventories.put(player, inventory);
 	}
 
-	
 	/**
 	 * 
 	 * @param player
@@ -597,14 +576,14 @@ public abstract class PocketsListenerBase implements Listener {
 			playersWithOpenInventories.entrySet().forEach(e -> saveInventoryIntoItem(e.getKey(), e.getValue(), false));
 		}
 	}
-	
+
 	public void saveOpenPocketInventory(HumanEntity player) {
 		if (playersWithOpenInventories != null && !playersWithOpenInventories.isEmpty()) {
 			saveInventoryIntoItem(player, playersWithOpenInventories.get(player), false);
 		}
 	}
-	
-	public void saveLater(HumanEntity player){
+
+	public void saveLater(HumanEntity player) {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -613,7 +592,6 @@ public abstract class PocketsListenerBase implements Listener {
 		}.runTaskLater(plugin, 1L);
 	}
 
-	
 	/**
 	 * 
 	 * @param player
@@ -621,7 +599,7 @@ public abstract class PocketsListenerBase implements Listener {
 	protected void removePlayerWithPocketInventoryOpen(HumanEntity player) {
 		if (player == null)
 			return;
-		
+
 		plugin.debugInfo("############################ REMOVING PLAYER: " + player.getName());
 
 		if (openPocketMap == null)
@@ -629,13 +607,11 @@ public abstract class PocketsListenerBase implements Listener {
 
 		if (activeInventoryMap == null)
 			activeInventoryMap = new HashMap<>();
-		
 
 		openPocketMap.remove(player.getName());
 		activeInventoryMap.remove(player.getName());
 	}
 
-	
 	/**
 	 * 
 	 * @param player
@@ -651,46 +627,41 @@ public abstract class PocketsListenerBase implements Listener {
 		plugin.debugInfo("#############################################################");
 		plugin.debugInfo("#############################################################");
 		plugin.debugInfo("#############################################################");
-		
+
 		if (openPocketMap == null)
 			openPocketMap = new HashMap<>();
 
 		if (activeInventoryMap == null)
 			activeInventoryMap = new HashMap<>();
 
-		
-
 		openPocketMap.put(player.getName(), item);
-		
-		if(inventory != null)
+
+		if (inventory != null)
 			activeInventoryMap.put(player.getName(), inventory);
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param item
 	 * @return
 	 */
 	protected boolean itemIsAnOpenPocket(ItemStack item) {
-		if(openPocketMap == null)
+		if (openPocketMap == null)
 			openPocketMap = new HashMap<>();
 		return openPocketMap.values().contains(item);
 	}
 
-	
 	/**
 	 * 
 	 * @param player
 	 * @return
 	 */
 	protected ItemStack getActivePocketItem(HumanEntity player) {
-		if(openPocketMap == null)
+		if (openPocketMap == null)
 			openPocketMap = new HashMap<>();
 		return openPocketMap.get(player.getName());
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param player
@@ -700,15 +671,15 @@ public abstract class PocketsListenerBase implements Listener {
 		return activeInventoryMap.get(player.getName());
 	}
 
-	
 	/**
 	 * 
 	 * @param player
 	 * @param item
 	 */
 	protected void setActivePocketItem(HumanEntity player, ItemStack item) {
-		plugin.debugInfo("################################### Set active pocket: " + (item != null ? item.getType().name() : "null"));
-		
+		plugin.debugInfo("################################### Set active pocket: "
+				+ (item != null ? item.getType().name() : "null"));
+
 		Inventory inventory = getActiveInventory(player);
 		NBTItem pocketNbtItem = new NBTItem(getActivePocketItem(player));
 		String uniqueId = pocketNbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID);
@@ -717,13 +688,11 @@ public abstract class PocketsListenerBase implements Listener {
 			plugin.warning("########### Pocket did not have unique ID!");
 			plugin.warning("#############################################");
 			return;
-		}else{
+		} else {
 			plugin.debugInfo("#############################################");
 			plugin.debugInfo("Pocking ID: " + uniqueId);
 			plugin.debugInfo("#############################################");
 		}
-		
-		
 
 		if (inventory != null && inventory.getContents() != null) {
 			Integer indexWhereMatchLocated = null;
@@ -732,9 +701,9 @@ public abstract class PocketsListenerBase implements Listener {
 			plugin.debugInfo("#############################################");
 			plugin.debugInfo("#############################################");
 			plugin.debugInfo("#############################################");
-			plugin.debugInfo("Checking inventory: " + inventory.getName() + "["+inventory.getContents().length+"]");
+			plugin.debugInfo("Checking inventory: " + inventory.getName() + "[" + inventory.getContents().length + "]");
 			for (ItemStack itemInInventory : inventory.getContents()) {
-				if(itemInInventory != null){
+				if (itemInInventory != null) {
 					NBTItem nbtItem = new NBTItem(itemInInventory);
 					if (uniqueId.equals(nbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID))) {
 						indexWhereMatchLocated = index;
@@ -757,7 +726,7 @@ public abstract class PocketsListenerBase implements Listener {
 				plugin.warning("#############################################");
 				return;
 			}
-		}else{
+		} else {
 			plugin.warning("#############################################");
 			plugin.warning("Inventory was null or empty!");
 			plugin.warning("#############################################");
@@ -767,7 +736,7 @@ public abstract class PocketsListenerBase implements Listener {
 	///////////////////////
 	// CONVERSION UTILS////
 	///////////////////////
-	
+
 	/**
 	 * 
 	 * @param itemWithPocket
@@ -790,7 +759,6 @@ public abstract class PocketsListenerBase implements Listener {
 		return itemWithPocket;
 	}
 
-	
 	/**
 	 * 
 	 * @param item
@@ -822,28 +790,33 @@ public abstract class PocketsListenerBase implements Listener {
 		} else if (pocketRecipe != null && item.getItemMeta().getDisplayName() != null
 				&& item.getItemMeta().getDisplayName().equals(pocketRecipe.getName())) {
 			isVersion1Pocket = true;
-		} else if (item.getItemMeta().getLore() == null || item.getItemMeta().getLore().isEmpty()) {
-			plugin.debugInfo("Item has no lore");
-			return null;
 		}
 
 		NBTItem nbtItem = new NBTItem(item);
-		if (nbtItem.hasKey(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY)) {
-			plugin.debugInfo(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " found: "
-					+ nbtItem.getString((IRecipe.NBT_BLOCKTYPER_RECIPE_KEY)));
+
+		String recipesNbtKey = plugin.getRecipesNbtKey();
+
+		// latest version
+		if (nbtItem.hasKey(plugin.getRecipesNbtKey())) {
+			plugin.debugInfo(plugin.getRecipesNbtKey() + " found: " + nbtItem.getString((plugin.getRecipesNbtKey())));
+		}
+		// last version
+		else if (nbtItem.hasKey(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY)) {
+			nbtItem.setString(recipesNbtKey, nbtItem.getString(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY));
+			nbtItem.removeKey(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY);
+			return nbtItem.getItem();
 		} else if (isVersion1Pocket) {
 			String recipeKey = PocketsPlugin.POCKET_RECIPE_KEY;
-			nbtItem.setString(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY, recipeKey);
-			plugin.debugInfo(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " set isVersion1Pocket: " + recipeKey);
+			nbtItem.setString(recipesNbtKey, recipeKey);
+			plugin.debugInfo(recipesNbtKey + " set isVersion1Pocket: " + recipeKey);
 			return nbtItem.getItem();
 		} else if (item.getItemMeta().getLore() != null && !item.getItemMeta().getLore().isEmpty()) {
 			Optional<String> optional = item.getItemMeta().getLore().stream().filter(l -> isHiddenRecipeKey(l))
 					.findFirst();
-
 			if (optional != null && optional.isPresent()) {
 				String recipeKey = BlockTyperRecipe.getKeyFromLoreLine(optional.get());
-				nbtItem.setString(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY, recipeKey);
-				plugin.debugInfo(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY + " set: " + recipeKey);
+				nbtItem.setString(recipesNbtKey, recipeKey);
+				plugin.debugInfo(recipesNbtKey + " set: " + recipeKey);
 				return nbtItem.getItem();
 			}
 		}
