@@ -9,6 +9,7 @@ public enum ConfigKeyEnum {
 	POCKET_MATERIAL("recipe.pocket.output"),
 	POCKET_NAME("recipe.pocket.name"),
 	OPEN_POCKET_CLICK_TYPE("open-pocket-click-type"),
+	GO_BACK_TO_PLAYER_INVENTORY_CLICK_TYPE("go-back-to-player-inventory-action-click-type"),
 	DEFAULT_POCKET_SIZE_LIMIT("default-pocket-size-limit"),
 	DEFAULT_ALLOW_POCKET_IN_POCKET("default-allow-pocket-in-pocket"),
 	RENAME_ITEMS_ON_INVENTORY_OPEN("rename-items-on-inventory-open"),

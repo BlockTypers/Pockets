@@ -185,18 +185,8 @@ public abstract class PocketsListenerBase implements Listener {
 	///////////////////////
 	// INVENTORY//////////
 	///////////////////////
-
-	/**
-	 * 
-	 * @param clickedItem
-	 * @param contents
-	 * @param player
-	 */
-	protected void openInventory(ItemStack clickedItem, List<ItemStack> contents, Player player) {
-
-		if (!isUserPermitted(player, true, true)) {
-			return;
-		}
+	
+	protected Inventory getPocketInventory(ItemStack clickedItem, List<ItemStack> contents, Player player){
 
 		int pocketSizeLimit = plugin.getConfig().getInt(
 				getMaterialSettingConfigKey(clickedItem.getType(), ConfigKeyEnum.MATERIAL_SETTING_LIMIT.getKey()));
@@ -257,15 +247,7 @@ public abstract class PocketsListenerBase implements Listener {
 			int blackedOutSlotsRequired = INVENTORY_COLUMNS - availableSlotsOnLastRow;
 
 			plugin.debugInfo("blackedOutSlotsRequired: " + blackedOutSlotsRequired);
-			for (i = pocketSizeLimit; i < pocketSizeLimit + blackedOutSlotsRequired; i++) {
-				ItemStack blackOut = new ItemStack(BLACKOUT_MATERIAL);
-				ItemMeta itemMeta = blackOut.getItemMeta();
-				itemMeta.setDisplayName(BLACKOUT_TEXT);
-				itemMeta.setLore(new ArrayList<>());
-				itemMeta.getLore().add(InvisibleLoreHelper.convertToInvisibleString(i + ""));
-				blackOut.setItemMeta(itemMeta);
-				pocketsInventory.setItem(i, blackOut);
-			}
+			fillWithBlackOutItems(pocketsInventory, pocketSizeLimit, pocketSizeLimit, blackedOutSlotsRequired);
 		}
 
 		if (!noPocketInPocketIssueLocated || !noIncompatibleIssue) {
@@ -274,6 +256,23 @@ public abstract class PocketsListenerBase implements Listener {
 			// then we need to re-save the item data before opening it.
 			saveInventoryIntoItem(player, pocketsInventory, true);
 		}
+		
+		return pocketsInventory;
+	}
+
+	/**
+	 * 
+	 * @param clickedItem
+	 * @param contents
+	 * @param player
+	 */
+	protected void openInventory(ItemStack clickedItem, List<ItemStack> contents, Player player) {
+
+		if (!isUserPermitted(player, true, true)) {
+			return;
+		}
+		
+		Inventory pocketsInventory = getPocketInventory(clickedItem, contents, player);
 
 		// PocketDelayOpener pocketDelayOpener = new PocketDelayOpener(plugin,
 		// player, pocketsInventory);
@@ -288,6 +287,18 @@ public abstract class PocketsListenerBase implements Listener {
 
 			}
 		}.runTaskLater(plugin, 1L);
+	}
+	
+	protected void fillWithBlackOutItems(Inventory inventory, int startingIndex, int sizeLimit, int slotsRequred){
+		for (int index = startingIndex; index < sizeLimit + slotsRequred; index++) {
+			ItemStack blackOut = new ItemStack(BLACKOUT_MATERIAL);
+			ItemMeta itemMeta = blackOut.getItemMeta();
+			itemMeta.setDisplayName(BLACKOUT_TEXT);
+			itemMeta.setLore(new ArrayList<>());
+			itemMeta.getLore().add(InvisibleLoreHelper.convertToInvisibleString(index + ""));
+			blackOut.setItemMeta(itemMeta);
+			inventory.setItem(index, blackOut);
+		}
 	}
 
 	/**

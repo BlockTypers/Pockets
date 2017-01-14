@@ -1,7 +1,9 @@
 package com.blocktyper.pockets.listeners;
 
 import java.util.List;
+import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,6 +13,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.blocktyper.nbt.NBTItem;
@@ -23,7 +26,7 @@ import com.blocktyper.recipes.IRecipe;
 public class InventoryClickListener extends PocketsListenerBase {
 
 	static final ClickType DEFAULT_CLICK_TYPE = ClickType.RIGHT;
-	
+
 	private static boolean debugNbtTags = false;
 
 	public InventoryClickListener(PocketsPlugin plugin) {
@@ -72,11 +75,33 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		if (itemIsInvalid(item))
 			return;
-		
+
 		debugNbtTags(item);
-		
+
+		if (event.getClickedInventory().getName() != null
+				&& event.getClickedInventory().getName().equals(BLACKOUT_TEXT)) {
+			event.setCancelled(true);
+			return;
+		}
+
 		if (clickedItemIsOpenPocket(player, event.getCurrentItem(), true)) {
 			event.setCancelled(true);
+			saveLater(player);
+
+			String goBackClickTypeString = plugin.getConfig().getString(
+					ConfigKeyEnum.GO_BACK_TO_PLAYER_INVENTORY_CLICK_TYPE.getKey(), ClickType.SHIFT_RIGHT.name());
+			if (goBackClickTypeString == null || goBackClickTypeString.isEmpty()
+					|| ClickType.valueOf(goBackClickTypeString) == null) {
+				goBackClickTypeString = ClickType.SHIFT_RIGHT.name();
+			}
+			goBackClickTypeString = goBackClickTypeString.toUpperCase();
+			if (event.getClick().name().equals(goBackClickTypeString)) {
+				player.closeInventory();
+				Inventory blankInventory = Bukkit.createInventory(null, INVENTORY_COLUMNS, BLACKOUT_TEXT);
+				fillWithBlackOutItems(blankInventory, 0, INVENTORY_COLUMNS, 0);
+				player.openInventory(blankInventory);
+			}
+
 			return;
 		}
 
@@ -114,6 +139,32 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		if (pocket == null)
 			return;
+
+		if (event.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)) {
+			if (pocketInPocketIssue(item, event.getCursor(), player, true)) {
+				return;
+			} else if (incompatibleIssue(event.getCursor(), player, true)) {
+				return;
+			}
+
+			setActivePocketItemAndInventory(player, item, event.getClickedInventory());
+			Inventory pocketInventory = getPocketInventory(item, contents, player);
+			Map<Integer, ItemStack> remainingItems = pocketInventory.addItem(event.getCursor());
+			ItemStack remainingStackForCursor = null;
+			if (remainingItems != null && remainingItems.values() != null) {
+				for(ItemStack remainingItem : remainingItems.values()){
+					if(remainingStackForCursor == null){
+						remainingStackForCursor = remainingItem;
+					}else{
+						tryToFitItemInPlayerInventory(remainingItem, player);
+					}
+				}
+			}
+			saveInventoryIntoItem(player, pocketInventory);
+			removePlayerWithPocketInventoryOpen(event.getWhoClicked());
+			player.setItemOnCursor(remainingStackForCursor);
+			event.setCancelled(true);
+		}
 
 		// if we got this far, then we are not in a pocket inventory and we
 		// clicked a pocket
@@ -265,52 +316,51 @@ public class InventoryClickListener extends PocketsListenerBase {
 		return action.equals(InventoryAction.PICKUP_ALL) || action.equals(InventoryAction.PICKUP_HALF)
 				|| action.equals(InventoryAction.PICKUP_ONE) || action.equals(InventoryAction.DROP_ONE_SLOT);
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param item
 	 */
-	private void debugNbtTags(ItemStack item){
-		if(debugNbtTags){
+	private void debugNbtTags(ItemStack item) {
+		if (debugNbtTags) {
 			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 			plugin.debugInfo("NBT Tags:");
 			NBTItem nbtItem = new NBTItem(item);
-	        if(nbtItem.getKeys() != null && !nbtItem.getKeys().isEmpty()){
-	        	for(String key : nbtItem.getKeys()){
-	        		boolean found = false;
-	        		plugin.debugInfo("Key: " + key) ;
-	        		String asString = nbtItem.getString(key);
-	        		if(asString != null){
-	        			plugin.debugInfo("  -String ("+asString.length()+"):  " + asString);
-	        			found = true;
-	        		}
-	        		
-	        		Double asDouble = nbtItem.getDouble(key);
-	        		if(asDouble != null){
-	        			plugin.debugInfo("  -Double:  " + asDouble);
-	        			found = true;
-	        		}
-	        		
-	        		Integer asInteger = nbtItem.getInteger(key);
-	        		if(asInteger != null){
-	        			plugin.debugInfo("  -Integer: " + asInteger);
-	        			found = true;
-	        		}
-	        		
-	        		Boolean asBoolean = nbtItem.getBoolean(key);
-	        		if(asBoolean != null){
-	        			plugin.debugInfo("  -Boolean: " + asBoolean);
-	        			found = true;
-	        		}
-	        		
-	        		if(!found)
-	        			plugin.debugInfo("  -NULL");
-	        	}
-	        }
-	        plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			if (nbtItem.getKeys() != null && !nbtItem.getKeys().isEmpty()) {
+				for (String key : nbtItem.getKeys()) {
+					boolean found = false;
+					plugin.debugInfo("Key: " + key);
+					String asString = nbtItem.getString(key);
+					if (asString != null) {
+						plugin.debugInfo("  -String (" + asString.length() + "):  " + asString);
+						found = true;
+					}
+
+					Double asDouble = nbtItem.getDouble(key);
+					if (asDouble != null) {
+						plugin.debugInfo("  -Double:  " + asDouble);
+						found = true;
+					}
+
+					Integer asInteger = nbtItem.getInteger(key);
+					if (asInteger != null) {
+						plugin.debugInfo("  -Integer: " + asInteger);
+						found = true;
+					}
+
+					Boolean asBoolean = nbtItem.getBoolean(key);
+					if (asBoolean != null) {
+						plugin.debugInfo("  -Boolean: " + asBoolean);
+						found = true;
+					}
+
+					if (!found)
+						plugin.debugInfo("  -NULL");
+				}
+			}
+			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 		}

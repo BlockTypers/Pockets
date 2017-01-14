@@ -9,6 +9,7 @@ log.recipes.enable: false
 
 # from org.bukkit.event.inventory.ClickType
 open-pocket-action: RIGHT
+go-back-to-player-inventory-action-click-type: SHIFT_RIGHT
 
 #this removes players OpenInventory achievement when they join and prevents the achievement from occurring
 #so that the server can know each time they open their inventory
