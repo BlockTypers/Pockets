@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -23,7 +22,6 @@ import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
 import com.blocktyper.recipes.BlockTyperRecipe;
 import com.blocktyper.recipes.IRecipe;
-import com.blocktyper.serialization.CardboardBox;
 
 public class PocketsUtils {
 
@@ -139,7 +137,8 @@ public class PocketsUtils {
 	}
 
 	private static void addPocketNameToLoreFirstLine(List<String> lore, String pocketName, IBlockTyperPlugin plugin) {
-		String invisiblePrefix = InvisibleLoreHelper.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY);
+		String invisiblePrefix = InvisibleLoreHelper
+				.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY);
 		lore.add(0, invisiblePrefix + plugin.getConfig().getString(ConfigKeyEnum.DEFAULT_POCKET_COLOR.getKey(),
 				PocketsPlugin.DEFAULT_POCKET_COLOR) + pocketName + " [0]");
 	}
@@ -180,52 +179,13 @@ public class PocketsUtils {
 		oldPocketedItemMeta.setLore(oldPocketedItemLore);
 		oldPocketedItemMeta.addEnchant(Enchantment.THORNS, 2, true);
 		oldPocketedItem.setItemMeta(oldPocketedItemMeta);
-		setLegacyPocketJson(oldPocketedItem, Arrays.asList(new ItemStack(Material.STONE)), player, true, plugin);
+		OldPocketHelper.setLegacyPocketJson(oldPocketedItem, Arrays.asList(new ItemStack(Material.STONE)), player, true,
+				plugin);
 		contentsList.add(oldPocketedItem);
 
-		// DIAMOND HELM
-		ItemStack diamondHelm = new ItemStack(Material.DIAMOND_HELMET);
-		ItemMeta diamondHelmMeta = diamondHelm.getItemMeta();
-		List<String> diamondHelmLore = new ArrayList<>();
-		diamondHelmMeta.setDisplayName("Diamond Helm");
-		diamondHelmLore.add("Diamond Lore");
-		diamondHelmMeta.setLore(diamondHelmLore);
-		diamondHelmMeta.addEnchant(Enchantment.THORNS, 2, true);
-		diamondHelm.setItemMeta(diamondHelmMeta);
-		diamondHelm = plugin.getInventoryClickListener().setPocketNbt(diamondHelm, null, player, true);
-		contentsList.add(diamondHelm);
-
-		// GOLD HELM
-		ItemStack goldHelm = new ItemStack(Material.GOLD_HELMET);
-		ItemMeta goldHelmMeta = goldHelm.getItemMeta();
-		List<String> goldHelmLore = new ArrayList<>();
-		goldHelmMeta.setDisplayName("Gold Helm");
-		goldHelmLore.add("Gold Lore");
-		goldHelmMeta.setLore(goldHelmLore);
-		goldHelm.setItemMeta(goldHelmMeta);
-		contentsList.add(goldHelm);
-
-		// FOREIGN INVIS IN NAME GOLD_BOOTS
-		ItemStack goldBoots = new ItemStack(Material.GOLD_BOOTS);
-		ItemMeta goldBootsMeta = goldBoots.getItemMeta();
-		goldBootsMeta.setDisplayName(
-				"Foreign Invisible Text In Name" + InvisibleLoreHelper.convertToInvisibleString("Invisible Name"));
-		goldBoots.setItemMeta(goldBootsMeta);
-		contentsList.add(goldBoots);
-
-		// FOREIGN INVIS IN LORE DIAMOND_BOOTS
-		ItemStack diamondBoots = new ItemStack(Material.DIAMOND_BOOTS);
-		ItemMeta diamondBootsMeta = diamondBoots.getItemMeta();
-		List<String> diamondBootsLore = new ArrayList<>();
-		diamondBootsMeta.setDisplayName("Foreign Invisible Lore");
-		diamondBootsLore.add(InvisibleLoreHelper.convertToInvisibleString("Invisible Lore"));
-		diamondBootsMeta.setLore(diamondBootsLore);
-		diamondBoots.setItemMeta(diamondBootsMeta);
-		contentsList.add(diamondBoots);
-
 		// IRON HELM
-		ItemStack ironHelm = new ItemStack(Material.IRON_HELMET);
-		ironHelm = plugin.getInventoryClickListener().setPocketNbt(ironHelm, null, player, true);
+		String ironHelmKey = getPocketWithPocketRecipeKey(Material.IRON_HELMET);
+		ItemStack ironHelm = plugin.recipeRegistrar().getItemFromRecipe(ironHelmKey, player, null, 1);
 		contentsList.add(ironHelm);
 
 		// PUMPKINS
@@ -248,28 +208,14 @@ public class PocketsUtils {
 		contentsList.add(ironIngot);
 
 		// POCKETS
-
 		ItemStack pocket = plugin.recipeRegistrar().getItemFromRecipe(PocketsPlugin.POCKET_RECIPE_KEY, player, null,
 				-1);
-		pocket.setAmount(3);
 		contentsList.add(pocket);
 
-		// hidden lore Pocket
-		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		ItemStack hidenLorePocket = new ItemStack(pocket.getType(), 2);
-		ItemMeta hidenLorePocketMeta = diamondBoots.getItemMeta();
-		List<String> hidenLorePocketLore = plugin.recipeRegistrar().getLoreConsiderLocalization(pocketRecipe, player);
-		String recipeKeyToBeHidden = BlockTyperRecipe.getRecipeKeyToBeHidden(PocketsPlugin.POCKET_RECIPE_KEY);
-		hidenLorePocketLore.add("hidden recipe key below");
-		hidenLorePocketLore.add(InvisibleLoreHelper.convertToInvisibleString(recipeKeyToBeHidden));
-		hidenLorePocketMeta.setLore(hidenLorePocketLore);
-		hidenLorePocketMeta.setDisplayName(plugin.recipeRegistrar().getNameConsiderLocalization(pocketRecipe, player));
-		hidenLorePocket.setItemMeta(hidenLorePocketMeta);
-		contentsList.add(hidenLorePocket);
-
 		// Original Pocket
+		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		ItemStack flowerPocket = new ItemStack(pocket.getType(), 1);
-		ItemMeta flowerPocketMeta = diamondBoots.getItemMeta();
+		ItemMeta flowerPocketMeta = flowerPocket.getItemMeta();
 		flowerPocketMeta.setDisplayName(pocketRecipe.getName());
 		flowerPocket.setItemMeta(flowerPocketMeta);
 		contentsList.add(flowerPocket);
@@ -321,35 +267,5 @@ public class PocketsUtils {
 
 		ItemStack[] contents = contentsList.toArray(new ItemStack[contentsList.size()]);
 		return contents;
-	}
-
-	public static void setLegacyPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player,
-			boolean includePrefix, PocketsPlugin plugin) {
-
-		if (itemWithPocket == null) {
-			return;
-		}
-
-		List<CardboardBox> contents = null;
-
-		if (itemsInPocket != null && !itemsInPocket.isEmpty()) {
-			contents = itemsInPocket.stream().filter(i -> i != null).map(i -> new CardboardBox(i))
-					.collect(Collectors.toList());
-		} else {
-			contents = new ArrayList<>();
-		}
-
-		Pocket pocket = new Pocket();
-		pocket.setContents(contents);
-
-		int itemCount = contents != null ? contents.size() : 0;
-
-		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
-
-		String visiblePrefix = includePrefix ? pocketName + " [" + itemCount + "]" : null;
-
-		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket,
-				PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY, visiblePrefix);
 	}
 }

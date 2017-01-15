@@ -2,6 +2,7 @@ package com.blocktyper.pockets.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
@@ -12,6 +13,7 @@ import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
 import com.blocktyper.recipes.BlockTyperRecipe;
+import com.blocktyper.recipes.IRecipe;
 import com.blocktyper.serialization.CardboardBox;
 
 public class OldPocketHelper {
@@ -58,6 +60,37 @@ public class OldPocketHelper {
 		}
 
 		return pocket;
+	}
+	
+	
+	public static void setLegacyPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player,
+			boolean includePrefix, PocketsPlugin plugin) {
+
+		if (itemWithPocket == null) {
+			return;
+		}
+
+		List<CardboardBox> contents = null;
+
+		if (itemsInPocket != null && !itemsInPocket.isEmpty()) {
+			contents = itemsInPocket.stream().filter(i -> i != null).map(i -> new CardboardBox(i))
+					.collect(Collectors.toList());
+		} else {
+			contents = new ArrayList<>();
+		}
+
+		Pocket pocket = new Pocket();
+		pocket.setContents(contents);
+
+		int itemCount = contents != null ? contents.size() : 0;
+
+		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+
+		String visiblePrefix = includePrefix ? pocketName + " [" + itemCount + "]" : null;
+
+		plugin.getInvisibleLoreHelper().setInvisisbleJson(pocket, itemWithPocket,
+				PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY, visiblePrefix);
 	}
 
 }

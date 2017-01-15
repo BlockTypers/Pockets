@@ -181,4 +181,14 @@ recipe.pocket.es.lore:
   - §5๑_๑
   
   
-messages.pockets-pockets-in-pockets-not-allowed.en: That's a no no!
+messages.pockets-placed-a-pocket-down.en: The item you just placed had a pocket attached. If you pick it back up soon, it might still be there.
+messages.pockets-server-restarted-while-pocket-was-open.en: The server has restarted since you opened this pocket. Please re-open it and try again.
+messages.pockets-permission-denied.en: Permission denied
+messages.pockets-pockets-in-pockets-not-allowed.en: Pockets in pockets not allowed
+messages.pockets-object-not-compatible.en: Object not compatible
+
+messages.pockets-placed-a-pocket-down.de: An dem Gegenstand den du gerade platziert hast ist eine Tasche befestigt. Wenn du gleich wieder hin gehst, könntest du deine Sachen noch wieder bekommen.
+messages.pockets-server-restarted-while-pocket-was-open.de: Der Server wurde angepasst seit du diese Tasche geöffnet hast. Bitte öffne sie erneut und starte einen weiteren Versuch.
+messages.pockets-permission-denied.de: Erlaubnis verweigert!
+messages.pockets-pockets-in-pockets-not-allowed.de: Taschen in den Taschen sind nicht erlaubt!
+messages.pockets-object-not-compatible.de: Objekt nicht kompatibel
