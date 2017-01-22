@@ -16,6 +16,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.blocktyper.helpers.InvisibleLoreHelper;
 import com.blocktyper.nbt.NBTItem;
 import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
@@ -61,6 +62,11 @@ public class InventoryClickListener extends PocketsListenerBase {
 		if (!(event.getWhoClicked() instanceof Player)) {
 			return;
 		}
+		
+		if (event.getClickedInventory() == null) {
+			plugin.debugInfo("clicked inventory was null");
+			return;
+		}
 
 		Player player = ((Player) event.getWhoClicked());
 
@@ -78,10 +84,20 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		debugNbtTags(item);
 
-		if (event.getClickedInventory().getName() != null
-				&& event.getClickedInventory().getName().equals(BLACKOUT_TEXT)) {
-			event.setCancelled(true);
-			return;
+		if (event.getClickedInventory().getName() != null) {
+			if(event.getClickedInventory().getName().equals(BLACKOUT_TEXT)){
+				event.setCancelled(true);
+				return;
+			}else{
+				String inventoryNameWithNoInvis = InvisibleLoreHelper.convertToVisibleString(event.getClickedInventory().getName());
+				if(inventoryNameWithNoInvis.startsWith(YOUR_POCKETS_HIDDEN_LORE_KEY)){
+					event.setCancelled(true);
+					if(!isBlackoutItem(item)){
+						checkIfItemHasPocketAndOpen(event, item, player);
+					}
+					return;
+				}
+			}
 		}
 
 		if (clickedItemIsOpenPocket(player, event.getCurrentItem(), true)) {
@@ -124,7 +140,12 @@ public class InventoryClickListener extends PocketsListenerBase {
 			handlePocketClick(event, player);
 			return;
 		}
-
+		
+		checkIfItemHasPocketAndOpen(event, item, player);
+	}
+	
+	
+	private void checkIfItemHasPocketAndOpen(InventoryClickEvent event, ItemStack item, Player player){
 		Pocket pocket = getPocket(item, player);
 		List<ItemStack> contents = null;
 		if (pocket != null) {

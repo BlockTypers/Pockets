@@ -1,10 +1,24 @@
 name: Pockets
-version: 1.0.9
+version: 1.1.0
 main:  com.blocktyper.pockets.PocketsPlugin
 author: spaarkimus
 website: blocktyper.com
 database: false
 description: Pockets. Taushen. Bolsillos. Poches. 口袋
 commands:
+  pockets: 
+    description: Opens an inventory showing your pockets.
+  taschen: 
+    description: Öffnet ein Inventar, das Ihre Taschen anzeigt.
+  taschen: 
+    description: Öffnet ein Inventar, das Ihre Taschen anzeigt.
+  bolsillos: 
+    description: Abre un inventario que muestra sus bolsillos.
+  poches: 
+    description: Ouvre un inventaire qui affiche vos poches.
+  карманы: 
+    description: Открывает перечень, который отображает ваши карманы.
+
+
   pockets-test: 
     description: Provides special inventory with testing items. OP only.

@@ -1,7 +1,9 @@
 package com.blocktyper.pockets;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -31,7 +33,17 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 	private boolean isNBTItemAPICompatible;
 	private boolean isNBTItemAPIJsonCompatible;
 	
+	private static final String COMMAND_POCKETS_TEST = "pockets-test";
 	
+	private static Set<String> POCKETS_COMMANDS = new HashSet<>();
+	
+	static{
+		POCKETS_COMMANDS.add("pockets");
+		POCKETS_COMMANDS.add("taschen");
+		POCKETS_COMMANDS.add("bolsillos");
+		POCKETS_COMMANDS.add("poches");
+		POCKETS_COMMANDS.add("карманы");
+	}	
 
 	public PocketsPlugin() {
 		super();
@@ -41,7 +53,12 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 		super.onEnable();
 		registerListeners();
 		PocketsUtils.registerPocketRecipes(this);
-		this.getCommand("pockets-test").setExecutor(this);
+		this.getCommand(COMMAND_POCKETS_TEST).setExecutor(this);
+		
+		for(String pocketsCommand : POCKETS_COMMANDS){
+			this.getCommand(pocketsCommand).setExecutor(this);
+		}
+		
 
 		ItemNBTIntegrationTest itemNBTIntegrationTest = new ItemNBTIntegrationTest(this);
 		itemNBTIntegrationTest.test();
@@ -81,20 +98,32 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 		if (!(sender instanceof Player))
 			return false;
 
-		Player player = (Player) sender;
-
-		if (!player.isOp())
+		if(label == null){
 			return false;
+		}
+		
+		Player player = (Player) sender;
+		
+		if(COMMAND_POCKETS_TEST.equalsIgnoreCase(label)){
+			if (!player.isOp()){
+				return false;
+			}
 
-		ItemStack[] contents = PocketsUtils.getTestItems(this, player);
+			ItemStack[] contents = PocketsUtils.getTestItems(this, player);
 
-		int inventorySize = (contents.length + 1) / 9 + 1;
+			int inventorySize = (contents.length + 1) / 9 + 1;
 
-		Inventory testInventory = Bukkit.createInventory(null, inventorySize * 9, "Testing items for Pockets");
-		testInventory.setContents(contents);
+			Inventory testInventory = Bukkit.createInventory(null, inventorySize * 9, "Testing items for Pockets");
+			testInventory.setContents(contents);
 
-		player.openInventory(testInventory);
-		return true;
+			player.openInventory(testInventory);
+			return true;
+		}else if(POCKETS_COMMANDS.contains(label.toLowerCase())){
+			inventoryClickListener.openPlayersYourPocketsInventory(player);
+			return true;
+		}
+		
+		return false;
 	}
 
 	public InventoryClickListener getInventoryClickListener() {

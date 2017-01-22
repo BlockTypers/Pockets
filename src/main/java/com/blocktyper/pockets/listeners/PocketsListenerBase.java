@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,7 @@ public abstract class PocketsListenerBase implements Listener {
 	protected static final Material BLACKOUT_MATERIAL = Material.STAINED_GLASS_PANE;
 	protected static final String BLACKOUT_TEXT = "---";
 	public static final String POCKETS_HIDDEN_LORE_KEY = "#PKT";
+	public static final String YOUR_POCKETS_HIDDEN_LORE_KEY = "#YOUR_PKTS";
 
 	public static final String POCKETS_SIZE_HIDDEN_LORE_KEY = "#SIZE_PRT";
 
@@ -337,6 +340,68 @@ public abstract class PocketsListenerBase implements Listener {
 		}
 
 		return null;
+	}
+	
+	
+	/**
+	 * 
+	 * @param plugin
+	 * @param player
+	 */
+	public void openPlayersYourPocketsInventory(HumanEntity player) {
+		if(player == null){
+			return;
+		}
+		
+		Map<Integer, List<ItemStack>> contentsMap = new HashMap<>();
+		
+		
+		if(player.getInventory() != null && player.getInventory().getContents() != null){
+			for(ItemStack item : player.getInventory().getContents()){
+				if(item == null){
+					continue;
+				}
+				
+				Pocket pocket = getPocket(item, player);
+				if(pocket != null){
+					int pocketSize = pocket.getContents() != null ? pocket.getContents().size() : 0;
+					
+					if(!contentsMap.containsKey(pocketSize)){
+						contentsMap.put(pocketSize, new ArrayList<>());
+					}
+					
+					contentsMap.get(pocketSize).add(item);
+				}
+			}
+		}
+		
+		List<ItemStack> contentsList = new ArrayList<>();
+		
+		if(!contentsMap.isEmpty()){
+			SortedSet<Integer> sortedSet = new TreeSet<Integer>(contentsMap.keySet());
+			for(Integer size : sortedSet){
+				List<ItemStack> contentsListForCurrentSize = contentsMap.get(size);
+				contentsList.addAll(contentsListForCurrentSize);
+			}
+		}
+
+		ItemStack[] contents = contentsList.toArray(new ItemStack[contentsList.size()]);
+		String yourPocketsInventoryName = getPlayersYourPocketsInventoryName(player);
+		
+		int rows = (contents.length / INVENTORY_COLUMNS) + (contents.length % INVENTORY_COLUMNS > 0 ? 1 : 0);
+		
+		rows = rows < 1 ? 1 : rows;
+		
+		Inventory yourPocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS, yourPocketsInventoryName);
+		yourPocketsInventory.setContents(contents);
+		fillWithBlackOutItems(yourPocketsInventory, contents.length, rows * INVENTORY_COLUMNS, 0);
+		
+		player.openInventory(yourPocketsInventory);
+	}
+	
+	protected String getPlayersYourPocketsInventoryName(HumanEntity player){
+		String yourPocketsInventoryName = plugin.getLocalizedMessage(LocalizedMessageEnum.YOUR_POCKETS_INVENTORY_NAME.getKey(), player);
+		return InvisibleLoreHelper.convertToInvisibleString(YOUR_POCKETS_HIDDEN_LORE_KEY) + ChatColor.RESET + yourPocketsInventoryName;
 	}
 
 	/**
@@ -834,5 +899,4 @@ public abstract class PocketsListenerBase implements Listener {
 
 		return null;
 	}
-
 }
