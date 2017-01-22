@@ -84,21 +84,22 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		debugNbtTags(item);
 
-		if (event.getClickedInventory().getName() != null) {
-			if(event.getClickedInventory().getName().equals(BLACKOUT_TEXT)){
+		if (event.getClickedInventory().getName() != null && event.getClickedInventory().getName().equals(BLACKOUT_TEXT)) {
+			event.setCancelled(true);
+			return;
+		}
+		
+		if(event.getInventory() != null && event.getInventory().getName() != null){
+			String inventoryNameWithNoInvis = InvisibleLoreHelper.convertToVisibleString(event.getInventory().getName());
+			if(inventoryNameWithNoInvis.startsWith(YOUR_POCKETS_HIDDEN_LORE_KEY)){
 				event.setCancelled(true);
-				return;
-			}else{
-				String inventoryNameWithNoInvis = InvisibleLoreHelper.convertToVisibleString(event.getClickedInventory().getName());
-				if(inventoryNameWithNoInvis.startsWith(YOUR_POCKETS_HIDDEN_LORE_KEY)){
-					event.setCancelled(true);
-					if(!isBlackoutItem(item)){
-						checkIfItemHasPocketAndOpen(event, item, player);
-					}
-					return;
+				if(!isBlackoutItem(item)){
+					checkIfItemHasPocketAndOpen(event, item, player);
 				}
+				return;
 			}
 		}
+		
 
 		if (clickedItemIsOpenPocket(player, event.getCurrentItem(), true)) {
 			event.setCancelled(true);
