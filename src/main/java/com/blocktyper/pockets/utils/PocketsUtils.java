@@ -17,26 +17,21 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_1_8.IBlockTyperPlugin;
-import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_8.nbt.NBTItem;
-import com.blocktyper.v1_1_8.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_1_8.recipes.IRecipe;
-
+import com.blocktyper.v1_1_9.IBlockTyperPlugin;
+import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_9.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_1_9.recipes.IRecipe;
 
 public class PocketsUtils {
 
 	public static void registerPocketRecipes(PocketsPlugin plugin) {
 		List<String> mats = plugin.getConfig().getStringList(ConfigKeyEnum.MATERIALS_WHICH_CAN_HAVE_POCKETS.getKey());
 
-		Map<String, String> nbtStringData = new HashMap<>();
-		NBTItem nbtItem = new NBTItem(new ItemStack(Material.STONE));
-		nbtItem.setObject(PocketsListenerBase.POCKET_NBT_JSON_KEY, new Pocket());
-		String emptyPocketJsonString = nbtItem.getString(PocketsListenerBase.POCKET_NBT_JSON_KEY);
-		nbtStringData.put(PocketsListenerBase.POCKET_NBT_JSON_KEY, emptyPocketJsonString);
+		Map<String, Object> nbtObjectData = new HashMap<>();
+		nbtObjectData.put(PocketsListenerBase.POCKET_NBT_JSON_KEY, new Pocket());
 
 		if (mats != null && !mats.isEmpty()) {
-			mats.forEach(m -> registerPocketRecipe(m, plugin, nbtStringData));
+			mats.forEach(m -> registerPocketRecipe(m, plugin, nbtObjectData));
 		} else {
 			plugin.debugWarning("No MATERIALS_WHICH_CAN_HAVE_POCKETS");
 		}
@@ -52,7 +47,7 @@ public class PocketsUtils {
 	}
 
 	private static void registerPocketRecipe(String materialName, PocketsPlugin plugin,
-			Map<String, String> nbtStringData) {
+			Map<String, Object> nbtObjectData) {
 
 		Material outputMaterial = Material.matchMaterial(materialName);
 
@@ -107,7 +102,7 @@ public class PocketsUtils {
 		itemHasNbtKeyMatrix.put(1, PocketsPlugin.POCKET_RECIPE_KEY);
 		recipe.setItemHasNbtKeyMatrix(itemHasNbtKeyMatrix);
 
-		recipe.setNbtStringData(nbtStringData);
+		recipe.setNbtObjectData(nbtObjectData);
 
 		List<String> defaultInitialLore = new ArrayList<>();
 		addPocketNameToLoreFirstLine(defaultInitialLore, defaultPocketName, plugin);

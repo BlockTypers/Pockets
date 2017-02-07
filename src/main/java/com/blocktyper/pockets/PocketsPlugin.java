@@ -13,13 +13,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.blocktyper.pockets.listeners.CraftCancelListener;
 import com.blocktyper.pockets.listeners.InventoryClickListener;
 import com.blocktyper.pockets.listeners.InventoryOpenListener;
 import com.blocktyper.pockets.listeners.PlayerInventoryOpenListener;
 import com.blocktyper.pockets.utils.PocketsUtils;
-import com.blocktyper.v1_1_8.BlockTyperBasePlugin;
-import com.blocktyper.v1_1_8.nbt.ItemNBTIntegrationTest;
-import com.blocktyper.v1_1_8.recipes.IRecipe;
+import com.blocktyper.v1_1_9.BlockTyperBasePlugin;
+import com.blocktyper.v1_1_9.nbt.ItemNBTIntegrationTest;
+import com.blocktyper.v1_1_9.recipes.IRecipe;
 
 public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecutor {
 
@@ -71,6 +72,7 @@ public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecut
 		inventoryClickListener = new InventoryClickListener(this);
 		new InventoryOpenListener(this);
 		new BlockPlaceListener(this);
+		new CraftCancelListener(this);
 
 		if (getConfig().getBoolean(ConfigKeyEnum.RENAME_ITEMS_ON_INVENTORY_OPEN.getKey(), false)) {
 			// this removes players OpenInventory achievement when they join and

@@ -23,8 +23,6 @@ public class InventoryOpenListener extends PocketsListenerBase {
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
 	public void inventoryOpenEvent(InventoryOpenEvent event) {
 
-		plugin.debugInfo("InventoryOpenEvent");
-
 		if (event.getInventory() == null || event.getInventory().getContents() == null) {
 			return;
 		}

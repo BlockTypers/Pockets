@@ -11,10 +11,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_8.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_1_8.recipes.IRecipe;
-import com.blocktyper.v1_1_8.serialization.CardboardBox;
+import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_9.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_1_9.recipes.IRecipe;
+import com.blocktyper.v1_1_9.serialization.CardboardBox;
 
 public class OldPocketHelper {
 

@@ -14,7 +14,7 @@ public class CraftCancelListener extends PocketsListenerBase {
 		super(plugin);
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void prepareItemCraft(PrepareItemCraftEvent event) {
 		ItemStack[] craftingMatrix = event.getInventory().getMatrix();
 		

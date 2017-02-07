@@ -20,9 +20,9 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
-import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_8.nbt.NBTItem;
-import com.blocktyper.v1_1_8.recipes.IRecipe;
+import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_9.nbt.NBTItem;
+import com.blocktyper.v1_1_9.recipes.IRecipe;
 
 public class InventoryClickListener extends PocketsListenerBase {
 
@@ -36,11 +36,11 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
 	public void onInventoryCloseEvent(InventoryCloseEvent event) {
-		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, event.getPlayer());
+		IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, event.getPlayer());
 
 		if (event.getInventory().getName() == null || !event.getInventory().getName().equals(pocketName)) {
-			plugin.debugInfo("Not pocket inventory closing");
+			debugInfo("Not pocket inventory closing");
 			return;
 		}
 		saveInventoryIntoItem(event.getPlayer(), event.getInventory(), true);
@@ -57,14 +57,12 @@ public class InventoryClickListener extends PocketsListenerBase {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
 	public void onInventoryClickEvent(InventoryClickEvent event) {
 
-		plugin.debugInfo("onInventoryClickEvent: " + event.getClick().name());
-
 		if (!(event.getWhoClicked() instanceof Player)) {
 			return;
 		}
 		
 		if (event.getClickedInventory() == null) {
-			plugin.debugInfo("clicked inventory was null");
+			debugInfo("clicked inventory was null");
 			return;
 		}
 
@@ -89,6 +87,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			return;
 		}
 		
+		
 		if(event.getInventory() != null && event.getInventory().getName() != null){
 			String inventoryNameWithNoInvis = InvisibleLoreHelper.convertToVisibleString(event.getInventory().getName());
 			if(inventoryNameWithNoInvis.startsWith(YOUR_POCKETS_HIDDEN_LORE_KEY)){
@@ -100,7 +99,6 @@ public class InventoryClickListener extends PocketsListenerBase {
 			}
 		}
 		
-
 		if (clickedItemIsOpenPocket(player, event.getCurrentItem(), true)) {
 			event.setCancelled(true);
 			saveLater(player);
@@ -123,18 +121,18 @@ public class InventoryClickListener extends PocketsListenerBase {
 		}
 
 		if (!itemFromCursor) {
-			plugin.debugInfo("Starting oldPocketConverter");
+			debugInfo("Starting oldPocketConverter");
 			ItemStack convertedItem = oldPocketConverter(event.getCurrentItem(), player);
 			if (convertedItem != null) {
 				event.setCurrentItem(convertedItem);
 				event.setCancelled(true);
 				return;
 			}
-			plugin.debugInfo("Done with oldPocketConverter");
+			debugInfo("Done with oldPocketConverter");
 		}
 
-		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+		IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		if (event.getInventory().getName() != null && event.getInventory().getName().equals(pocketName)) {
 			// We are in a pocket inventory and must handle pocket transfers
@@ -150,13 +148,13 @@ public class InventoryClickListener extends PocketsListenerBase {
 		Pocket pocket = getPocket(item, player);
 		List<ItemStack> contents = null;
 		if (pocket != null) {
-			plugin.debugInfo("------------------------------------------");
-			plugin.debugInfo("Pocket retreived");
+			debugInfo("------------------------------------------");
+			debugInfo("Pocket retreived");
 			contents = getPocketContents(pocket);
-			plugin.debugInfo("Contents: " + (contents != null ? contents.size() : "null"));
-			plugin.debugInfo("------------------------------------------");
+			debugInfo("Contents: " + (contents != null ? contents.size() : "null"));
+			debugInfo("------------------------------------------");
 		} else {
-			plugin.debugInfo("No Pocket retreived");
+			debugInfo("No Pocket retreived");
 		}
 
 		if (pocket == null)
@@ -196,14 +194,14 @@ public class InventoryClickListener extends PocketsListenerBase {
 			clickType = ClickType.valueOf(
 					plugin.getConfig().getString(ConfigKeyEnum.OPEN_POCKET_ACTION.getKey(), DEFAULT_CLICK_TYPE.name()));
 		} catch (Exception e) {
-			plugin.warning("Issue getting default click type: " + e.getMessage());
+			warning("Issue getting default click type: " + e.getMessage());
 			clickType = null;
 		}
 
 		clickType = clickType != null ? clickType : DEFAULT_CLICK_TYPE;
 
 		if (!clickType.equals(event.getClick())) {
-			plugin.debugInfo("Not a pocket action click");
+			debugInfo("Not a pocket action click");
 			return;
 		}
 
@@ -211,7 +209,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		event.setCancelled(true);
 
-		plugin.debugInfo("calling openInventory: " + item.getType().name());
+		debugInfo("calling openInventory: " + item.getType().name());
 
 		openInventory(item, contents, player);
 	}
@@ -236,8 +234,8 @@ public class InventoryClickListener extends PocketsListenerBase {
 	protected boolean clickedItemIsOpenPocket(Player player, ItemStack clickedItem, boolean sendMessage) {
 		if (itemIsAnOpenPocket(clickedItem)) {
 			if (sendMessage) {
-				IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-				String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+				IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+				String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, player);
 				player.sendMessage(ChatColor.RED + pocketName);
 			}
 			return true;
@@ -254,12 +252,11 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 		ItemStack itemWithPocket = getActivePocketItem(player);
 
-		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+		IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		if (itemWithPocket == null) {
-			String message = plugin
-					.getLocalizedMessage(LocalizedMessageEnum.SERVER_RESTARTED_WHILE_POCKET_WAS_OPEN.getKey(), player);
+			String message = getLocalizedMessage(LocalizedMessageEnum.SERVER_RESTARTED_WHILE_POCKET_WAS_OPEN.getKey(), player);
 
 			player.sendMessage(ChatColor.RED + message);
 			event.setCancelled(true);
@@ -345,46 +342,46 @@ public class InventoryClickListener extends PocketsListenerBase {
 	 */
 	private void debugNbtTags(ItemStack item) {
 		if (debugNbtTags) {
-			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
-			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
-			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
-			plugin.debugInfo("NBT Tags:");
+			debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			debugInfo("NBT Tags:");
 			NBTItem nbtItem = new NBTItem(item);
 			if (nbtItem.getKeys() != null && !nbtItem.getKeys().isEmpty()) {
 				for (String key : nbtItem.getKeys()) {
 					boolean found = false;
-					plugin.debugInfo("Key: " + key);
+					debugInfo("Key: " + key);
 					String asString = nbtItem.getString(key);
 					if (asString != null) {
-						plugin.debugInfo("  -String (" + asString.length() + "):  " + asString);
+						debugInfo("  -String (" + asString.length() + "):  " + asString);
 						found = true;
 					}
 
 					Double asDouble = nbtItem.getDouble(key);
 					if (asDouble != null) {
-						plugin.debugInfo("  -Double:  " + asDouble);
+						debugInfo("  -Double:  " + asDouble);
 						found = true;
 					}
 
 					Integer asInteger = nbtItem.getInteger(key);
 					if (asInteger != null) {
-						plugin.debugInfo("  -Integer: " + asInteger);
+						debugInfo("  -Integer: " + asInteger);
 						found = true;
 					}
 
 					Boolean asBoolean = nbtItem.getBoolean(key);
 					if (asBoolean != null) {
-						plugin.debugInfo("  -Boolean: " + asBoolean);
+						debugInfo("  -Boolean: " + asBoolean);
 						found = true;
 					}
 
 					if (!found)
-						plugin.debugInfo("  -NULL");
+						debugInfo("  -NULL");
 				}
 			}
-			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
-			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
-			plugin.debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
+			debugInfo("()()()()()()()()()()()()()()()()()()()()()()()");
 		}
 	}
 

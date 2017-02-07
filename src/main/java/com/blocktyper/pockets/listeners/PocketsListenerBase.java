@@ -18,7 +18,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,13 +28,14 @@ import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.utils.OldPocketHelper;
-import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_8.nbt.NBTItem;
-import com.blocktyper.v1_1_8.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_1_8.recipes.IRecipe;
-import com.blocktyper.v1_1_8.serialization.CardboardBox;
+import com.blocktyper.v1_1_9.BlockTyperListener;
+import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_9.nbt.NBTItem;
+import com.blocktyper.v1_1_9.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_1_9.recipes.IRecipe;
+import com.blocktyper.v1_1_9.serialization.CardboardBox;
 
-public abstract class PocketsListenerBase implements Listener {
+public abstract class PocketsListenerBase extends BlockTyperListener {
 
 	protected PocketsPlugin plugin;
 	private Map<String, ItemStack> openPocketMap = new HashMap<>();
@@ -66,6 +66,7 @@ public abstract class PocketsListenerBase implements Listener {
 	}
 
 	public PocketsListenerBase(PocketsPlugin plugin, boolean isOldHelper) {
+		init(plugin);
 		this.plugin = plugin;
 		if (!isOldHelper) {
 			this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -95,7 +96,7 @@ public abstract class PocketsListenerBase implements Listener {
 
 		if (requireUsePermissions) {
 			String requiredTypeString = (isGeneral ? "General use" : "Pocket in pocket") + " permissions required";
-			plugin.debugInfo(requiredTypeString);
+			debugInfo(requiredTypeString);
 			userHasPermission = false;
 
 			ConfigKeyEnum permissionsKey = isGeneral ? ConfigKeyEnum.GENERAL_USE_PERMISSIONS
@@ -103,17 +104,17 @@ public abstract class PocketsListenerBase implements Listener {
 			String usePermissions = plugin.getConfig().getString(permissionsKey.getKey(), null);
 
 			if (usePermissions == null) {
-				plugin.warning(requiredTypeString + ", but no permission supplied.  Please set the value for the ["
+				warning(requiredTypeString + ", but no permission supplied.  Please set the value for the ["
 						+ permissionsKey + "] configuration key.");
 			} else {
-				plugin.debugInfo("Checking use permissions: " + usePermissions);
-				userHasPermission = plugin.getPlayerHelper().playerCanDoAction(player, Arrays.asList(usePermissions));
-				plugin.debugInfo(userHasPermission ? "Permission granted" : "Permission denied");
+				debugInfo("Checking use permissions: " + usePermissions);
+				userHasPermission = getPlayerHelper().playerCanDoAction(player, Arrays.asList(usePermissions));
+				debugInfo(userHasPermission ? "Permission granted" : "Permission denied");
 			}
 		}
 
 		if (!userHasPermission && sendMessage) {
-			String message = plugin.getLocalizedMessage(LocalizedMessageEnum.PERMISSION_DENIED.getKey(), player);
+			String message = getLocalizedMessage(LocalizedMessageEnum.PERMISSION_DENIED.getKey(), player);
 			player.sendMessage(message);
 		}
 
@@ -130,7 +131,7 @@ public abstract class PocketsListenerBase implements Listener {
 	protected boolean incompatibleIssue(ItemStack itemInPocket, HumanEntity player, boolean sendMessage) {
 		if (itemInPocket != null && INCOMPATIBLE_MATERIALS.contains(itemInPocket.getType())) {
 			if (sendMessage) {
-				String message = plugin.getLocalizedMessage(LocalizedMessageEnum.OBJECT_NOT_COMPATIBLE.getKey(),
+				String message = getLocalizedMessage(LocalizedMessageEnum.OBJECT_NOT_COMPATIBLE.getKey(),
 						player);
 				player.sendMessage(ChatColor.RED + message);
 			}
@@ -188,16 +189,23 @@ public abstract class PocketsListenerBase implements Listener {
 	///////////////////////
 	// INVENTORY//////////
 	///////////////////////
-	
-	protected Inventory getPocketInventory(ItemStack clickedItem, List<ItemStack> contents, Player player){
+
+	/**
+	 * 
+	 * @param clickedItem
+	 * @param contents
+	 * @param player
+	 * @return
+	 */
+	protected Inventory getPocketInventory(ItemStack clickedItem, List<ItemStack> contents, Player player) {
 
 		int pocketSizeLimit = plugin.getConfig().getInt(
 				getMaterialSettingConfigKey(clickedItem.getType(), ConfigKeyEnum.MATERIAL_SETTING_LIMIT.getKey()));
 
-		plugin.debugInfo("pocketSizeLimit [initial]: " + pocketSizeLimit);
+		debugInfo("pocketSizeLimit [initial]: " + pocketSizeLimit);
 		if (pocketSizeLimit <= 0) {
 			pocketSizeLimit = plugin.getConfig().getInt(ConfigKeyEnum.DEFAULT_POCKET_SIZE_LIMIT.getKey(), 6);
-			plugin.debugInfo("pocketSizeLimit [secondary]: " + pocketSizeLimit);
+			debugInfo("pocketSizeLimit [secondary]: " + pocketSizeLimit);
 		}
 
 		if (contents == null)
@@ -206,12 +214,12 @@ public abstract class PocketsListenerBase implements Listener {
 		if (contents.size() > pocketSizeLimit)
 			pocketSizeLimit = contents.size();
 
-		plugin.debugInfo("pocketSizeLimit [final]: " + pocketSizeLimit);
+		debugInfo("pocketSizeLimit [final]: " + pocketSizeLimit);
 
 		int rows = (pocketSizeLimit / INVENTORY_COLUMNS) + (pocketSizeLimit % INVENTORY_COLUMNS > 0 ? 1 : 0);
 
-		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+		IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		Inventory pocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS, pocketName);
 
@@ -242,14 +250,14 @@ public abstract class PocketsListenerBase implements Listener {
 		int availableSlotsOnLastRow = pocketSizeLimit >= INVENTORY_COLUMNS ? pocketSizeLimit % INVENTORY_COLUMNS
 				: pocketSizeLimit;
 
-		plugin.debugInfo("availableSlotsOnLastRow: " + availableSlotsOnLastRow);
+		debugInfo("availableSlotsOnLastRow: " + availableSlotsOnLastRow);
 
 		if (availableSlotsOnLastRow > 0) {
 			// we must add black pane glass slots to the end of the inventory
 			// which cannot be moved
 			int blackedOutSlotsRequired = INVENTORY_COLUMNS - availableSlotsOnLastRow;
 
-			plugin.debugInfo("blackedOutSlotsRequired: " + blackedOutSlotsRequired);
+			debugInfo("blackedOutSlotsRequired: " + blackedOutSlotsRequired);
 			fillWithBlackOutItems(pocketsInventory, pocketSizeLimit, pocketSizeLimit, blackedOutSlotsRequired);
 		}
 
@@ -259,7 +267,7 @@ public abstract class PocketsListenerBase implements Listener {
 			// then we need to re-save the item data before opening it.
 			saveInventoryIntoItem(player, pocketsInventory, true);
 		}
-		
+
 		return pocketsInventory;
 	}
 
@@ -274,7 +282,7 @@ public abstract class PocketsListenerBase implements Listener {
 		if (!isUserPermitted(player, true, true)) {
 			return;
 		}
-		
+
 		Inventory pocketsInventory = getPocketInventory(clickedItem, contents, player);
 
 		// PocketDelayOpener pocketDelayOpener = new PocketDelayOpener(plugin,
@@ -291,8 +299,15 @@ public abstract class PocketsListenerBase implements Listener {
 			}
 		}.runTaskLater(plugin, 1L);
 	}
-	
-	protected void fillWithBlackOutItems(Inventory inventory, int startingIndex, int sizeLimit, int slotsRequred){
+
+	/**
+	 * 
+	 * @param inventory
+	 * @param startingIndex
+	 * @param sizeLimit
+	 * @param slotsRequred
+	 */
+	protected void fillWithBlackOutItems(Inventory inventory, int startingIndex, int sizeLimit, int slotsRequred) {
 		for (int index = startingIndex; index < sizeLimit + slotsRequred; index++) {
 			ItemStack blackOut = new ItemStack(BLACKOUT_MATERIAL);
 			ItemMeta itemMeta = blackOut.getItemMeta();
@@ -326,7 +341,7 @@ public abstract class PocketsListenerBase implements Listener {
 	 */
 	public Pocket getPocket(ItemStack item, HumanEntity player) {
 
-		plugin.debugInfo("Looking for pocket in: " + (item != null ? item.getType().name() : "null"));
+		debugInfo("Looking for pocket in: " + (item != null ? item.getType().name() : "null"));
 
 		NBTItem nbtItem = new NBTItem(item);
 		if (nbtItem != null && nbtItem.hasKey(POCKET_NBT_JSON_KEY)) {
@@ -341,45 +356,43 @@ public abstract class PocketsListenerBase implements Listener {
 
 		return null;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param plugin
 	 * @param player
 	 */
 	public void openPlayersYourPocketsInventory(HumanEntity player) {
-		if(player == null){
+		if (player == null) {
 			return;
 		}
-		
+
 		Map<Integer, List<ItemStack>> contentsMap = new HashMap<>();
-		
-		
-		if(player.getInventory() != null && player.getInventory().getContents() != null){
-			for(ItemStack item : player.getInventory().getContents()){
-				if(item == null){
+
+		if (player.getInventory() != null && player.getInventory().getContents() != null) {
+			for (ItemStack item : player.getInventory().getContents()) {
+				if (item == null) {
 					continue;
 				}
-				
+
 				Pocket pocket = getPocket(item, player);
-				if(pocket != null){
+				if (pocket != null) {
 					int pocketSize = pocket.getContents() != null ? pocket.getContents().size() : 0;
-					
-					if(!contentsMap.containsKey(pocketSize)){
+
+					if (!contentsMap.containsKey(pocketSize)) {
 						contentsMap.put(pocketSize, new ArrayList<>());
 					}
-					
+
 					contentsMap.get(pocketSize).add(item);
 				}
 			}
 		}
-		
+
 		List<ItemStack> contentsList = new ArrayList<>();
-		
-		if(!contentsMap.isEmpty()){
+
+		if (!contentsMap.isEmpty()) {
 			SortedSet<Integer> sortedSet = new TreeSet<Integer>(contentsMap.keySet());
-			for(Integer size : sortedSet){
+			for (Integer size : sortedSet) {
 				List<ItemStack> contentsListForCurrentSize = contentsMap.get(size);
 				contentsList.addAll(contentsListForCurrentSize);
 			}
@@ -387,21 +400,29 @@ public abstract class PocketsListenerBase implements Listener {
 
 		ItemStack[] contents = contentsList.toArray(new ItemStack[contentsList.size()]);
 		String yourPocketsInventoryName = getPlayersYourPocketsInventoryName(player);
-		
+
 		int rows = (contents.length / INVENTORY_COLUMNS) + (contents.length % INVENTORY_COLUMNS > 0 ? 1 : 0);
-		
+
 		rows = rows < 1 ? 1 : rows;
-		
-		Inventory yourPocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS, yourPocketsInventoryName);
+
+		Inventory yourPocketsInventory = Bukkit.createInventory(null, rows * INVENTORY_COLUMNS,
+				yourPocketsInventoryName);
 		yourPocketsInventory.setContents(contents);
 		fillWithBlackOutItems(yourPocketsInventory, contents.length, rows * INVENTORY_COLUMNS, 0);
-		
+
 		player.openInventory(yourPocketsInventory);
 	}
-	
-	protected String getPlayersYourPocketsInventoryName(HumanEntity player){
-		String yourPocketsInventoryName = plugin.getLocalizedMessage(LocalizedMessageEnum.YOUR_POCKETS_INVENTORY_NAME.getKey(), player);
-		return InvisibleLoreHelper.convertToInvisibleString(YOUR_POCKETS_HIDDEN_LORE_KEY) + ChatColor.RESET + yourPocketsInventoryName;
+
+	/**
+	 * 
+	 * @param player
+	 * @return
+	 */
+	protected String getPlayersYourPocketsInventoryName(HumanEntity player) {
+		String yourPocketsInventoryName = plugin
+				.getLocalizedMessage(LocalizedMessageEnum.YOUR_POCKETS_INVENTORY_NAME.getKey(), player);
+		return InvisibleLoreHelper.convertToInvisibleString(YOUR_POCKETS_HIDDEN_LORE_KEY) + ChatColor.RESET
+				+ yourPocketsInventoryName;
 	}
 
 	/**
@@ -429,15 +450,15 @@ public abstract class PocketsListenerBase implements Listener {
 	public ItemStack setPocketNbt(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player,
 			boolean includePrefix) {
 
-		plugin.debugInfo("NBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBNTNBTNBTNBTNBTNBT");
-		plugin.debugInfo("###################### setPocketNbt: " + (itemsInPocket != null ? itemsInPocket.size() : ""));
-		plugin.debugInfo("NBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBNTNBTNBTNBTNBTNBT");
+		debugInfo("NBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBNTNBTNBTNBTNBTNBT");
+		debugInfo("###################### setPocketNbt: " + (itemsInPocket != null ? itemsInPocket.size() : ""));
+		debugInfo("NBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBTNBNTNBTNBTNBTNBTNBT");
 
 		if (itemWithPocket == null) {
 			return null;
 		}
 
-		plugin.debugInfo("Type: " + itemWithPocket.getType().name());
+		debugInfo("Type: " + itemWithPocket.getType().name());
 
 		List<CardboardBox> contents = null;
 
@@ -451,7 +472,7 @@ public abstract class PocketsListenerBase implements Listener {
 		Pocket pocket = new Pocket();
 		pocket.setContents(contents);
 
-		plugin.debugInfo("Contents: " + (contents != null ? contents.size() : 0));
+		debugInfo("Contents: " + (contents != null ? contents.size() : 0));
 
 		if (includePrefix)
 			setLoreWithPocketSizeAdded(itemWithPocket, contents, player);
@@ -484,7 +505,7 @@ public abstract class PocketsListenerBase implements Listener {
 		ItemStack itemWithPocket = getActivePocketItem(player);
 
 		if (itemWithPocket == null) {
-			plugin.debugInfo("itemWithPocket == null");
+			debugInfo("itemWithPocket == null");
 			return;
 		}
 
@@ -520,10 +541,10 @@ public abstract class PocketsListenerBase implements Listener {
 		}
 
 		if (isOnClose) {
-			plugin.debugInfo("SAVING on inventory close");
+			debugInfo("SAVING on inventory close");
 			itemWithPocket = setPocketNbt(itemWithPocket, itemsInPocket, player, true);
 		} else {
-			plugin.debugInfo("SAVING after inventory action");
+			debugInfo("SAVING after inventory action");
 			itemWithPocket = setPocketNbt(itemWithPocket, itemsInPocket, player, true);
 		}
 
@@ -559,7 +580,7 @@ public abstract class PocketsListenerBase implements Listener {
 	 */
 	protected void tryToFitItemInPlayerInventory(ItemStack item, HumanEntity player) {
 		HashMap<Integer, ItemStack> remaining = player.getInventory().addItem(item);
-		plugin.debugWarning("tryToFitItemInPlayerInventory: " + item.getType() + "[" + item.getAmount() + "]");
+		debugWarning("tryToFitItemInPlayerInventory: " + item.getType() + "[" + item.getAmount() + "]");
 		if (remaining == null || remaining.values() == null || remaining.values().isEmpty()) {
 			remaining.values().forEach(i -> player.getWorld().dropItemNaturally(player.getLocation(), i));
 		}
@@ -578,8 +599,8 @@ public abstract class PocketsListenerBase implements Listener {
 	protected String getPocketSizeLore(List<CardboardBox> contents, HumanEntity player) {
 		int itemCount = contents != null ? contents.size() : 0;
 
-		IRecipe recipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
-		String pocketName = plugin.recipeRegistrar().getNameConsiderLocalization(recipe, player);
+		IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
 		String invisiblePrefix = InvisibleLoreHelper.convertToInvisibleString(POCKETS_SIZE_HIDDEN_LORE_KEY);
 
@@ -646,19 +667,30 @@ public abstract class PocketsListenerBase implements Listener {
 	public static void RemovePlayerWithPocketInventoryOpen(HumanEntity player) {
 		playersWithOpenInventories.remove(player);
 	}
-
+	
+	/**
+	 * 
+	 */
 	public void saveAllOpenPocketInventories() {
 		if (playersWithOpenInventories != null && !playersWithOpenInventories.isEmpty()) {
 			playersWithOpenInventories.entrySet().forEach(e -> saveInventoryIntoItem(e.getKey(), e.getValue(), false));
 		}
 	}
 
+	/**
+	 * 
+	 * @param player
+	 */
 	public void saveOpenPocketInventory(HumanEntity player) {
 		if (playersWithOpenInventories != null && !playersWithOpenInventories.isEmpty()) {
 			saveInventoryIntoItem(player, playersWithOpenInventories.get(player), false);
 		}
 	}
 
+	/**
+	 * 
+	 * @param player
+	 */
 	public void saveLater(HumanEntity player) {
 		new BukkitRunnable() {
 			@Override
@@ -676,7 +708,7 @@ public abstract class PocketsListenerBase implements Listener {
 		if (player == null)
 			return;
 
-		plugin.debugInfo("############################ REMOVING PLAYER: " + player.getName());
+		debugInfo("############################ REMOVING PLAYER: " + player.getName());
 
 		if (openPocketMap == null)
 			openPocketMap = new HashMap<>();
@@ -695,14 +727,14 @@ public abstract class PocketsListenerBase implements Listener {
 	 * @param inventory
 	 */
 	protected void setActivePocketItemAndInventory(HumanEntity player, ItemStack item, Inventory inventory) {
-		plugin.debugInfo("#############################################################");
-		plugin.debugInfo("#############################################################");
-		plugin.debugInfo("#############################################################");
-		plugin.debugInfo("########### Setting    active   item: " + (item != null ? item.getType().name() : "null"));
-		plugin.debugInfo("########### Setting active inventory: " + (inventory != null ? inventory.getName() : "null"));
-		plugin.debugInfo("#############################################################");
-		plugin.debugInfo("#############################################################");
-		plugin.debugInfo("#############################################################");
+		debugInfo("#############################################################");
+		debugInfo("#############################################################");
+		debugInfo("#############################################################");
+		debugInfo("########### Setting    active   item: " + (item != null ? item.getType().name() : "null"));
+		debugInfo("########### Setting active inventory: " + (inventory != null ? inventory.getName() : "null"));
+		debugInfo("#############################################################");
+		debugInfo("#############################################################");
+		debugInfo("#############################################################");
 
 		if (openPocketMap == null)
 			openPocketMap = new HashMap<>();
@@ -753,43 +785,46 @@ public abstract class PocketsListenerBase implements Listener {
 	 * @param item
 	 */
 	protected void setActivePocketItem(HumanEntity player, ItemStack item) {
-		plugin.debugInfo("################################### Set active pocket: "
+		debugInfo("################################### Set active pocket: "
 				+ (item != null ? item.getType().name() : "null"));
 
 		Inventory inventory = getActiveInventory(player);
 		NBTItem pocketNbtItem = new NBTItem(getActivePocketItem(player));
 		String uniqueId = pocketNbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID);
 		if (uniqueId == null) {
-			plugin.warning("#############################################");
-			plugin.warning("########### Pocket did not have unique ID!");
-			plugin.warning("#############################################");
+			warning("#############################################");
+			warning("########### Pocket did not have unique ID!");
+			warning("#############################################");
 			return;
 		} else {
-			plugin.debugInfo("#############################################");
-			plugin.debugInfo("Pocking ID: " + uniqueId);
-			plugin.debugInfo("#############################################");
+			debugInfo("#############################################");
+			debugInfo("Pocket ID: " + uniqueId);
+			debugInfo("#############################################");
 		}
 
 		if (inventory != null && inventory.getContents() != null) {
 			Integer indexWhereMatchLocated = null;
 
 			int index = 0;
-			plugin.debugInfo("#############################################");
-			plugin.debugInfo("#############################################");
-			plugin.debugInfo("#############################################");
-			plugin.debugInfo("Checking inventory: " + inventory.getName() + "[" + inventory.getContents().length + "]");
+			debugInfo("#############################################");
+			debugInfo("#############################################");
+			debugInfo("#############################################");
+			debugInfo("Checking inventory: " + inventory.getName() + "[" + inventory.getContents().length + "]");
 			for (ItemStack itemInInventory : inventory.getContents()) {
 				if (itemInInventory != null) {
+					debugInfo("Item: " + itemInInventory.getType());
 					NBTItem nbtItem = new NBTItem(itemInInventory);
-					if (uniqueId.equals(nbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID))) {
+					String nbtUniqueId = nbtItem.getString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID);
+					debugInfo("nbtUniqueId: " + nbtUniqueId);
+					if (uniqueId.equals(nbtUniqueId)) {
 						indexWhereMatchLocated = index;
 					}
 				}
 				index++;
 			}
-			plugin.debugInfo("#############################################");
-			plugin.debugInfo("#############################################");
-			plugin.debugInfo("#############################################");
+
+			debugInfo("#############################################");
+			debugInfo("#############################################");
 
 			if (indexWhereMatchLocated != null) {
 				ItemStack[] contents = inventory.getContents();
@@ -797,15 +832,15 @@ public abstract class PocketsListenerBase implements Listener {
 				inventory.setContents(contents);
 				setActivePocketItemAndInventory(player, contents[indexWhereMatchLocated], null);
 			} else {
-				plugin.warning("#############################################");
-				plugin.warning("Pocket could not be located in inventory!");
-				plugin.warning("#############################################");
+				warning("#############################################");
+				warning("Pocket could not be located in inventory!");
+				warning("#############################################");
 				return;
 			}
 		} else {
-			plugin.warning("#############################################");
-			plugin.warning("Inventory was null or empty!");
-			plugin.warning("#############################################");
+			warning("#############################################");
+			warning("Inventory was null or empty!");
+			warning("#############################################");
 		}
 	}
 
@@ -826,12 +861,12 @@ public abstract class PocketsListenerBase implements Listener {
 		setLoreWithPocketSizeAdded(itemWithPocket, pocket.getContents(), player);
 
 		NBTItem nbtItem = new NBTItem(itemWithPocket);
-		plugin.debugInfo("Setting Old pocket as object: " + itemWithPocket.getType().name());
+		debugInfo("Setting Old pocket as object: " + itemWithPocket.getType().name());
 		nbtItem.setObject(POCKET_NBT_JSON_KEY, pocket);
 		nbtItem.setString(IRecipe.NBT_BLOCKTYPER_UNIQUE_ID, UUID.randomUUID().toString());
-		plugin.debugInfo("Done setting Old pocket as object");
+		debugInfo("Done setting Old pocket as object");
 		itemWithPocket = nbtItem.getItem();
-		plugin.debugInfo("Getting item back from Old pocket as object");
+		debugInfo("Getting item back from Old pocket as object");
 		return itemWithPocket;
 	}
 
@@ -849,7 +884,7 @@ public abstract class PocketsListenerBase implements Listener {
 		boolean isVersion1Pocket = false;
 
 		if (!plugin.isNbtItemAPICompatible()) {
-			plugin.debugInfo("NBTAPI not compatible");
+			debugInfo("NBTAPI not compatible");
 			return item;
 		}
 
@@ -857,7 +892,7 @@ public abstract class PocketsListenerBase implements Listener {
 			return null;
 		}
 
-		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
+		IRecipe pocketRecipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 
 		Pocket pocket = oldPocketHelper.getPocketOld(item, player);
 
@@ -870,11 +905,11 @@ public abstract class PocketsListenerBase implements Listener {
 
 		NBTItem nbtItem = new NBTItem(item);
 
-		String recipesNbtKey = plugin.getRecipesNbtKey();
+		String recipesNbtKey = getRecipesNbtKey();
 
 		// latest version
-		if (nbtItem.hasKey(plugin.getRecipesNbtKey())) {
-			plugin.debugInfo(plugin.getRecipesNbtKey() + " found: " + nbtItem.getString((plugin.getRecipesNbtKey())));
+		if (nbtItem.hasKey(getRecipesNbtKey())) {
+			debugInfo(getRecipesNbtKey() + " found: " + nbtItem.getString((getRecipesNbtKey())));
 		}
 		// last version
 		else if (nbtItem.hasKey(IRecipe.NBT_BLOCKTYPER_RECIPE_KEY)) {
@@ -884,7 +919,7 @@ public abstract class PocketsListenerBase implements Listener {
 		} else if (isVersion1Pocket) {
 			String recipeKey = PocketsPlugin.POCKET_RECIPE_KEY;
 			nbtItem.setString(recipesNbtKey, recipeKey);
-			plugin.debugInfo(recipesNbtKey + " set isVersion1Pocket: " + recipeKey);
+			debugInfo(recipesNbtKey + " set isVersion1Pocket: " + recipeKey);
 			return nbtItem.getItem();
 		} else if (item.getItemMeta().getLore() != null && !item.getItemMeta().getLore().isEmpty()) {
 			Optional<String> optional = item.getItemMeta().getLore().stream().filter(l -> isHiddenRecipeKey(l))
@@ -892,7 +927,7 @@ public abstract class PocketsListenerBase implements Listener {
 			if (optional != null && optional.isPresent()) {
 				String recipeKey = AbstractBlockTyperRecipe.getKeyFromLoreLine(optional.get());
 				nbtItem.setString(recipesNbtKey, recipeKey);
-				plugin.debugInfo(recipesNbtKey + " set: " + recipeKey);
+				debugInfo(recipesNbtKey + " set: " + recipeKey);
 				return nbtItem.getItem();
 			}
 		}

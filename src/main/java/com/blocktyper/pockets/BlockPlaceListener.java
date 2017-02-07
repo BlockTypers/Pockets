@@ -17,7 +17,7 @@ import org.bukkit.metadata.MetadataValue;
 
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_1_8.serialization.CardboardBox;
+import com.blocktyper.v1_1_9.serialization.CardboardBox;
 
 import net.md_5.bungee.api.ChatColor;
 
