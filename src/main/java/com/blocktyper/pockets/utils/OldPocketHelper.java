@@ -8,16 +8,16 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.blocktyper.helpers.InvisibleLoreHelper;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.recipes.BlockTyperRecipe;
-import com.blocktyper.recipes.IRecipe;
-import com.blocktyper.serialization.CardboardBox;
+import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_8.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_1_8.recipes.IRecipe;
+import com.blocktyper.v1_1_8.serialization.CardboardBox;
 
 public class OldPocketHelper {
-	
+
 	PocketsPlugin plugin;
 
 	public OldPocketHelper(PocketsPlugin plugin) {
@@ -26,8 +26,8 @@ public class OldPocketHelper {
 
 	public Pocket getPocketOld(ItemStack item, HumanEntity player) {
 
-		Pocket pocket = plugin.getInvisibleLoreHelper().getObjectFromInvisisibleLore(item, PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY,
-				Pocket.class);
+		Pocket pocket = plugin.getInvisibleLoreHelper().getObjectFromInvisisibleLore(item,
+				PocketsListenerBase.POCKETS_HIDDEN_LORE_KEY, Pocket.class);
 
 		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
 			List<CardboardBox> newContents = new ArrayList<>();
@@ -38,7 +38,7 @@ public class OldPocketHelper {
 					if (unboxedItem.getItemMeta() != null && unboxedItem.getItemMeta().getLore() != null) {
 						List<String> lore = new ArrayList<>();
 						for (String loreLine : unboxedItem.getItemMeta().getLore()) {
-							if (BlockTyperRecipe.isHiddenRecipeKey(loreLine)) {
+							if (AbstractBlockTyperRecipe.isHiddenRecipeKey(loreLine)) {
 								lore.add(InvisibleLoreHelper.convertToInvisibleString(loreLine));
 							} else {
 								lore.add(loreLine);
@@ -61,8 +61,7 @@ public class OldPocketHelper {
 
 		return pocket;
 	}
-	
-	
+
 	public static void setLegacyPocketJson(ItemStack itemWithPocket, List<ItemStack> itemsInPocket, HumanEntity player,
 			boolean includePrefix, PocketsPlugin plugin) {
 

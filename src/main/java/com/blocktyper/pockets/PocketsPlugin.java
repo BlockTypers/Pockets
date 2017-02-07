@@ -13,14 +13,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.blocktyper.nbt.ItemNBTIntegrationTest;
-import com.blocktyper.plugin.BlockTyperPlugin;
 import com.blocktyper.pockets.listeners.InventoryClickListener;
 import com.blocktyper.pockets.listeners.InventoryOpenListener;
 import com.blocktyper.pockets.listeners.PlayerInventoryOpenListener;
 import com.blocktyper.pockets.utils.PocketsUtils;
+import com.blocktyper.v1_1_8.BlockTyperBasePlugin;
+import com.blocktyper.v1_1_8.nbt.ItemNBTIntegrationTest;
+import com.blocktyper.v1_1_8.recipes.IRecipe;
 
-public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
+public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecutor {
 
 	private static final String RECIPES_KEY = "POCKETS_RECIPE_KEY";
 	public static final String POCKET_RECIPE_KEY = "pocket";
@@ -141,6 +142,11 @@ public class PocketsPlugin extends BlockTyperPlugin implements CommandExecutor {
 	@Override
 	public String getRecipesNbtKey() {
 		return RECIPES_KEY;
+	}
+
+	@Override
+	public IRecipe bootstrapRecipe(IRecipe recipe) {
+		return recipe;
 	}
 
 }

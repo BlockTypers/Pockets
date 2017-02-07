@@ -13,15 +13,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.blocktyper.helpers.InvisibleLoreHelper;
-import com.blocktyper.nbt.NBTItem;
-import com.blocktyper.plugin.IBlockTyperPlugin;
 import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.recipes.BlockTyperRecipe;
-import com.blocktyper.recipes.IRecipe;
+import com.blocktyper.v1_1_8.IBlockTyperPlugin;
+import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_8.nbt.NBTItem;
+import com.blocktyper.v1_1_8.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_1_8.recipes.IRecipe;
+
 
 public class PocketsUtils {
 
@@ -93,7 +94,7 @@ public class PocketsUtils {
 
 		plugin.debugWarning("Pocket material: " + materialName);
 
-		BlockTyperRecipe recipe = new BlockTyperRecipe(recipeKey, materialMatrix, outputMaterial, plugin);
+		AbstractBlockTyperRecipe recipe = new PocketsRecipe(recipeKey, materialMatrix, null, outputMaterial, plugin);
 
 		List<Integer> transferSourceLoreAndEnchantmentMatrix = new ArrayList<>();
 		transferSourceLoreAndEnchantmentMatrix.add(transferSourceNameSlot);

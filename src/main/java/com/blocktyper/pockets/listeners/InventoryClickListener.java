@@ -16,13 +16,13 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.blocktyper.helpers.InvisibleLoreHelper;
-import com.blocktyper.nbt.NBTItem;
 import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
-import com.blocktyper.recipes.IRecipe;
+import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_8.nbt.NBTItem;
+import com.blocktyper.v1_1_8.recipes.IRecipe;
 
 public class InventoryClickListener extends PocketsListenerBase {
 

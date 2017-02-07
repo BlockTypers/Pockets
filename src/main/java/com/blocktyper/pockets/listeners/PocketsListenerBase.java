@@ -24,16 +24,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.blocktyper.helpers.InvisibleLoreHelper;
-import com.blocktyper.nbt.NBTItem;
 import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.utils.OldPocketHelper;
-import com.blocktyper.recipes.BlockTyperRecipe;
-import com.blocktyper.recipes.IRecipe;
-import com.blocktyper.serialization.CardboardBox;
+import com.blocktyper.v1_1_8.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_1_8.nbt.NBTItem;
+import com.blocktyper.v1_1_8.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_1_8.recipes.IRecipe;
+import com.blocktyper.v1_1_8.serialization.CardboardBox;
 
 public abstract class PocketsListenerBase implements Listener {
 
@@ -621,7 +621,7 @@ public abstract class PocketsListenerBase implements Listener {
 	 */
 	protected boolean isHiddenRecipeKey(String loreLine) {
 		String visibleLine = InvisibleLoreHelper.convertToVisibleString(loreLine);
-		return BlockTyperRecipe.isHiddenRecipeKey(visibleLine);
+		return AbstractBlockTyperRecipe.isHiddenRecipeKey(visibleLine);
 	}
 
 	///////////////////////
@@ -890,7 +890,7 @@ public abstract class PocketsListenerBase implements Listener {
 			Optional<String> optional = item.getItemMeta().getLore().stream().filter(l -> isHiddenRecipeKey(l))
 					.findFirst();
 			if (optional != null && optional.isPresent()) {
-				String recipeKey = BlockTyperRecipe.getKeyFromLoreLine(optional.get());
+				String recipeKey = AbstractBlockTyperRecipe.getKeyFromLoreLine(optional.get());
 				nbtItem.setString(recipesNbtKey, recipeKey);
 				plugin.debugInfo(recipesNbtKey + " set: " + recipeKey);
 				return nbtItem.getItem();
