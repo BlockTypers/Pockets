@@ -18,9 +18,9 @@ import com.blocktyper.pockets.listeners.InventoryClickListener;
 import com.blocktyper.pockets.listeners.InventoryOpenListener;
 import com.blocktyper.pockets.listeners.PlayerInventoryOpenListener;
 import com.blocktyper.pockets.utils.PocketsUtils;
-import com.blocktyper.v1_1_9.BlockTyperBasePlugin;
-import com.blocktyper.v1_1_9.nbt.ItemNBTIntegrationTest;
-import com.blocktyper.v1_1_9.recipes.IRecipe;
+import com.blocktyper.v1_2_2.BlockTyperBasePlugin;
+import com.blocktyper.v1_2_2.nbt.ItemNBTIntegrationTest;
+import com.blocktyper.v1_2_2.recipes.IRecipe;
 
 public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecutor {
 
@@ -34,18 +34,18 @@ public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecut
 
 	private boolean isNBTItemAPICompatible;
 	private boolean isNBTItemAPIJsonCompatible;
-	
+
 	private static final String COMMAND_POCKETS_TEST = "pockets-test";
-	
+
 	private static Set<String> POCKETS_COMMANDS = new HashSet<>();
-	
-	static{
+
+	static {
 		POCKETS_COMMANDS.add("pockets");
 		POCKETS_COMMANDS.add("taschen");
 		POCKETS_COMMANDS.add("bolsillos");
 		POCKETS_COMMANDS.add("poches");
 		POCKETS_COMMANDS.add("карманы");
-	}	
+	}
 
 	public PocketsPlugin() {
 		super();
@@ -56,11 +56,10 @@ public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecut
 		registerListeners();
 		PocketsUtils.registerPocketRecipes(this);
 		this.getCommand(COMMAND_POCKETS_TEST).setExecutor(this);
-		
-		for(String pocketsCommand : POCKETS_COMMANDS){
+
+		for (String pocketsCommand : POCKETS_COMMANDS) {
 			this.getCommand(pocketsCommand).setExecutor(this);
 		}
-		
 
 		ItemNBTIntegrationTest itemNBTIntegrationTest = new ItemNBTIntegrationTest(this);
 		itemNBTIntegrationTest.test();
@@ -101,14 +100,14 @@ public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecut
 		if (!(sender instanceof Player))
 			return false;
 
-		if(label == null){
+		if (label == null) {
 			return false;
 		}
-		
+
 		Player player = (Player) sender;
-		
-		if(COMMAND_POCKETS_TEST.equalsIgnoreCase(label)){
-			if (!player.isOp()){
+
+		if (COMMAND_POCKETS_TEST.equalsIgnoreCase(label)) {
+			if (!player.isOp()) {
 				return false;
 			}
 
@@ -121,11 +120,11 @@ public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecut
 
 			player.openInventory(testInventory);
 			return true;
-		}else if(POCKETS_COMMANDS.contains(label.toLowerCase())){
+		} else if (POCKETS_COMMANDS.contains(label.toLowerCase())) {
 			inventoryClickListener.openPlayersYourPocketsInventory(player);
 			return true;
 		}
-		
+
 		return false;
 	}
 

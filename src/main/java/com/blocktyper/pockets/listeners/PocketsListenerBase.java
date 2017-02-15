@@ -1,5 +1,6 @@
 package com.blocktyper.pockets.listeners;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,12 +29,13 @@ import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.utils.OldPocketHelper;
-import com.blocktyper.v1_1_9.BlockTyperListener;
-import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_9.nbt.NBTItem;
-import com.blocktyper.v1_1_9.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_1_9.recipes.IRecipe;
-import com.blocktyper.v1_1_9.serialization.CardboardBox;
+import com.blocktyper.v1_2_2.BlockTyperListener;
+import com.blocktyper.v1_2_2.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_2.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_2_2.nbt.NBTItem;
+import com.blocktyper.v1_2_2.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_2.recipes.IRecipe;
+import com.blocktyper.v1_2_2.serialization.CardboardBox;
 
 public abstract class PocketsListenerBase extends BlockTyperListener {
 
@@ -50,6 +52,8 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	public static final String POCKETS_SIZE_HIDDEN_LORE_KEY = "#SIZE_PRT";
 
 	public static final String POCKET_NBT_JSON_KEY = "pocket.json";
+	
+	public static String MATERIAL_CONFIG_KEY_FORMAT = ConfigKeyEnum.MATERIAL_SETTINGS.getKey() + ".{0}.{1}";
 
 	private OldPocketHelper oldPocketHelper;
 
@@ -161,13 +165,12 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 */
 	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player,
 			boolean showWarning) {
-		boolean defaultAllowPocketsInPocket = plugin.getConfig().getBoolean(getMaterialSettingConfigKey(
-				itemWithPocket.getType(), ConfigKeyEnum.DEFAULT_ALLOW_POCKET_IN_POCKET.getKey()), true);
-		boolean allowPocketsInPocket = plugin.getConfig()
-				.getBoolean(
-						getMaterialSettingConfigKey(itemWithPocket.getType(),
-								ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
-						defaultAllowPocketsInPocket);
+		boolean defaultAllowPocketsInPocket = plugin.getConfig().getBoolean(ConfigKeyEnum.DEFAULT_ALLOW_POCKET_IN_POCKET.getKey());
+		
+		Boolean allowPocketsInPocket = plugin.getConfig().getBoolean(
+				getMaterialSettingConfigKey(itemWithPocket,
+						ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
+				defaultAllowPocketsInPocket);
 
 		Pocket pocket = getPocket(itemInPocket, player);
 		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
@@ -200,8 +203,8 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	protected Inventory getPocketInventory(ItemStack clickedItem, List<ItemStack> contents, Player player) {
 
 		int pocketSizeLimit = plugin.getConfig().getInt(
-				getMaterialSettingConfigKey(clickedItem.getType(), ConfigKeyEnum.MATERIAL_SETTING_LIMIT.getKey()));
-
+				getMaterialSettingConfigKey(clickedItem, ConfigKeyEnum.MATERIAL_SETTING_LIMIT.getKey()));
+		
 		debugInfo("pocketSizeLimit [initial]: " + pocketSizeLimit);
 		if (pocketSizeLimit <= 0) {
 			pocketSizeLimit = plugin.getConfig().getInt(ConfigKeyEnum.DEFAULT_POCKET_SIZE_LIMIT.getKey(), 6);
@@ -325,8 +328,19 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @param suffix
 	 * @return
 	 */
-	protected String getMaterialSettingConfigKey(Material material, String suffix) {
-		return ConfigKeyEnum.MATERIAL_SETTINGS.getKey() + "." + material.name() + "." + suffix;
+	protected String getMaterialSettingConfigKey(ItemStack item, String suffix) {
+		
+		ComplexMaterial complexMaterial = new ComplexMaterial(item);
+		
+		String key = MessageFormat.format(MATERIAL_CONFIG_KEY_FORMAT, complexMaterial.toString(ComplexMaterial.TO_MAT), suffix);
+		
+		if(getConfig().contains(key)){
+			return key;
+		}
+		
+		key = MessageFormat.format(MATERIAL_CONFIG_KEY_FORMAT, complexMaterial.toString(ComplexMaterial.TO_MAT_HIDE_ZERO), suffix);
+		
+		return key;
 	}
 
 	///////////////////////
@@ -615,8 +629,8 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @param invisibelKey
 	 * @return
 	 */
-	protected List<String> removeOldInvisibleLore(ItemStack itemWithPocket, HumanEntity player, String invisibelKey) {
-		return InvisibleLoreHelper.removeLoreWithInvisibleKey(itemWithPocket, player, invisibelKey);
+	protected List<String> removeOldInvisibleLore(ItemStack itemWithPocket, String invisibelKey) {
+		return InvisibleLoreHelper.removeLoreWithInvisibleKey(itemWithPocket, invisibelKey);
 	}
 
 	/**
@@ -627,7 +641,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 */
 	protected void setLoreWithPocketSizeAdded(ItemStack itemWithPocket, List<CardboardBox> contents,
 			HumanEntity player) {
-		List<String> lore = removeOldInvisibleLore(itemWithPocket, player, POCKETS_SIZE_HIDDEN_LORE_KEY);
+		List<String> lore = removeOldInvisibleLore(itemWithPocket, POCKETS_SIZE_HIDDEN_LORE_KEY);
 
 		ItemMeta itemMeta = itemWithPocket.getItemMeta();
 		lore.add(getPocketSizeLore(contents, player));
@@ -857,7 +871,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 */
 	private ItemStack convertOldItemWithPocket(ItemStack itemWithPocket, Pocket pocket, HumanEntity player) {
 
-		removeOldInvisibleLore(itemWithPocket, player, POCKETS_HIDDEN_LORE_KEY);
+		removeOldInvisibleLore(itemWithPocket, POCKETS_HIDDEN_LORE_KEY);
 		setLoreWithPocketSizeAdded(itemWithPocket, pocket.getContents(), player);
 
 		NBTItem nbtItem = new NBTItem(itemWithPocket);

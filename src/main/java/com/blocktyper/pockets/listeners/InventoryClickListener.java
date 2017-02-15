@@ -20,9 +20,9 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
-import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_9.nbt.NBTItem;
-import com.blocktyper.v1_1_9.recipes.IRecipe;
+import com.blocktyper.v1_2_2.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_2_2.nbt.NBTItem;
+import com.blocktyper.v1_2_2.recipes.IRecipe;
 
 public class InventoryClickListener extends PocketsListenerBase {
 
@@ -184,6 +184,8 @@ public class InventoryClickListener extends PocketsListenerBase {
 			removePlayerWithPocketInventoryOpen(event.getWhoClicked());
 			player.setItemOnCursor(remainingStackForCursor);
 			event.setCancelled(true);
+			saveLater(player);
+			return;
 		}
 
 		// if we got this far, then we are not in a pocket inventory and we

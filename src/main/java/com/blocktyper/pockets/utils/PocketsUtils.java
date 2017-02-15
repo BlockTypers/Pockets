@@ -17,10 +17,11 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_1_9.IBlockTyperPlugin;
-import com.blocktyper.v1_1_9.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_1_9.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_1_9.recipes.IRecipe;
+import com.blocktyper.v1_2_2.IBlockTyperPlugin;
+import com.blocktyper.v1_2_2.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_2.helpers.InvisibleLoreHelper;
+import com.blocktyper.v1_2_2.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_2.recipes.IRecipe;
 
 public class PocketsUtils {
 
@@ -41,15 +42,15 @@ public class PocketsUtils {
 		// recipeKeepMatrix, plugin, listenersList);
 	}
 
-	public static String getPocketWithPocketRecipeKey(Material material) {
-		String recipeKey = material.name() + "-with-pocket";
+	public static String getPocketWithPocketRecipeKey(String materialName) {
+		String recipeKey = materialName + "-with-pocket";
 		return recipeKey;
 	}
 
 	private static void registerPocketRecipe(String materialName, PocketsPlugin plugin,
 			Map<String, Object> nbtObjectData) {
 
-		Material outputMaterial = Material.matchMaterial(materialName);
+		ComplexMaterial outputMaterial = ComplexMaterial.fromString(materialName);
 
 		IRecipe pocketRecipe = plugin.recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		if (pocketRecipe == null)
@@ -61,15 +62,12 @@ public class PocketsUtils {
 			return;
 
 		String pocketMaterialName = plugin.getConfig().getString(ConfigKeyEnum.POCKET_MATERIAL.getKey());
-		Material pocketMaterial = Material.matchMaterial(pocketMaterialName);
+		ComplexMaterial pocketMaterial = ComplexMaterial.fromString(pocketMaterialName);
 
 		if (pocketMaterial == null)
 			return;
 
-		String recipeKey = getPocketWithPocketRecipeKey(outputMaterial);
-
-		ItemStack outputItem = new ItemStack(outputMaterial);
-		outputItem = plugin.getInventoryClickListener().setPocketNbt(outputItem, new ArrayList<>(), null, false);
+		String recipeKey = getPocketWithPocketRecipeKey(materialName);
 
 		Integer transferSourceNameSlot = 7;
 
@@ -78,18 +76,32 @@ public class PocketsUtils {
 		// SMS
 		List<Material> materialMatrix = new ArrayList<>();
 		materialMatrix.add(0, Material.STRING);
-		materialMatrix.add(1, pocketMaterial);
+		materialMatrix.add(1, pocketMaterial.getMaterial());
 		materialMatrix.add(2, Material.STRING);
 		materialMatrix.add(3, Material.STRING);
 		materialMatrix.add(4, Material.STRING);
 		materialMatrix.add(5, Material.STRING);
 		materialMatrix.add(6, Material.STRING);
-		materialMatrix.add(transferSourceNameSlot, outputMaterial);
+		materialMatrix.add(transferSourceNameSlot, outputMaterial.getMaterial());
 		materialMatrix.add(8, Material.STRING);
+		
+		
+		List<Byte> materialDataMatrix = new ArrayList<>();
+		materialDataMatrix.add(0, null);
+		materialDataMatrix.add(1, pocketMaterial.getData());
+		materialDataMatrix.add(2, null);
+		materialDataMatrix.add(3, null);
+		materialDataMatrix.add(4, null);
+		materialDataMatrix.add(5, null);
+		materialDataMatrix.add(6, null);
+		materialDataMatrix.add(transferSourceNameSlot, outputMaterial.getData());
+		materialDataMatrix.add(8, null);
 
 		plugin.debugWarning("Pocket material: " + materialName);
 
-		AbstractBlockTyperRecipe recipe = new PocketsRecipe(recipeKey, materialMatrix, null, outputMaterial, plugin);
+		AbstractBlockTyperRecipe recipe = new PocketsRecipe(recipeKey, materialMatrix, materialDataMatrix, outputMaterial.getMaterial(), plugin);
+		
+		recipe.setOutputData(outputMaterial.getData());
 
 		List<Integer> transferSourceLoreAndEnchantmentMatrix = new ArrayList<>();
 		transferSourceLoreAndEnchantmentMatrix.add(transferSourceNameSlot);
@@ -180,12 +192,12 @@ public class PocketsUtils {
 		contentsList.add(oldPocketedItem);
 
 		// IRON HELM
-		String ironHelmKey = getPocketWithPocketRecipeKey(Material.IRON_HELMET);
+		String ironHelmKey = getPocketWithPocketRecipeKey(Material.IRON_HELMET.name());
 		ItemStack ironHelm = plugin.recipeRegistrar().getItemFromRecipe(ironHelmKey, player, null, 1);
 		contentsList.add(ironHelm);
 
 		// PUMPKINS
-		String pumpkinKey = getPocketWithPocketRecipeKey(Material.PUMPKIN);
+		String pumpkinKey = getPocketWithPocketRecipeKey(Material.PUMPKIN.name());
 		ItemStack pumpkin = plugin.recipeRegistrar().getItemFromRecipe(pumpkinKey, player, null, 1);
 		contentsList.add(pumpkin);
 		ItemStack pumpkin2 = plugin.recipeRegistrar().getItemFromRecipe(pumpkinKey, player, null, 1);

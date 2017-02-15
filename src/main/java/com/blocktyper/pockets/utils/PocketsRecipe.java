@@ -5,9 +5,9 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 
-import com.blocktyper.v1_1_9.IBlockTyperPlugin;
-import com.blocktyper.v1_1_9.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_1_9.recipes.IRecipe;
+import com.blocktyper.v1_2_2.IBlockTyperPlugin;
+import com.blocktyper.v1_2_2.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_2.recipes.IRecipe;
 
 public class PocketsRecipe extends AbstractBlockTyperRecipe {
 

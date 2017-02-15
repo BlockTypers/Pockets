@@ -43,6 +43,8 @@ materials-which-can-have-pockets:
 - SADDLE
 - CARPET
 - PUMPKIN
+- FURNACE
+- STONE-1
 
 default-pocket-size-limit: 6
 default-allow-pocket-in-pocket: false
@@ -52,6 +54,8 @@ permissions-for-general-pocket-use: pockets.general
 
 require-permissions-pocket-in-pocket-use: false
 permissions-for-pocket-in-pocket-use: pockets.pocket-in-pocket
+
+global-blacklist: ID_120
 
 material-settings: 
   LEATHER_HELMET: 
@@ -126,6 +130,10 @@ material-settings:
   PUMPKIN: 
     limit: 12
     allow-pocket-in-pocket: true
+  FURNACE: 
+    limit: 1
+  STONE-1: 
+    limit: 1
 
 recipes-settings.continuous-translation: true
 
