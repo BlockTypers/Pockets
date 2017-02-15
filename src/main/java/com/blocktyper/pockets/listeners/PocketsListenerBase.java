@@ -151,8 +151,8 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @param player
 	 * @return
 	 */
-	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player) {
-		return pocketInPocketIssue(itemWithPocket, itemInPocket, player, true);
+	protected boolean notAllowedIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player) {
+		return notAllowedIssue(itemWithPocket, itemInPocket, player, true);
 	}
 
 	/**
@@ -163,8 +163,9 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @param showWarning
 	 * @return
 	 */
-	protected boolean pocketInPocketIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player,
+	protected boolean notAllowedIssue(ItemStack itemWithPocket, ItemStack itemInPocket, HumanEntity player,
 			boolean showWarning) {
+		
 		boolean defaultAllowPocketsInPocket = plugin.getConfig().getBoolean(ConfigKeyEnum.DEFAULT_ALLOW_POCKET_IN_POCKET.getKey());
 		
 		Boolean allowPocketsInPocket = plugin.getConfig().getBoolean(
@@ -185,7 +186,57 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 				return true;
 			}
 		}
-
+		
+		String itemWhitelistKey = getMaterialSettingConfigKey(itemWithPocket, ConfigKeyEnum.WHITELIST.getKey());
+		List<String> whiteListedItems = getConfig().getStringList(itemWhitelistKey);
+		
+		ComplexMaterial itemInPocketMaterial = new ComplexMaterial(itemInPocket);
+		boolean inItemWhiteList = false;
+		
+		if(whiteListedItems != null && !whiteListedItems.isEmpty()){
+			inItemWhiteList = whiteListedItems.contains(itemInPocketMaterial.toString(ComplexMaterial.TO_MAT)) || whiteListedItems.contains(itemInPocketMaterial.toString(ComplexMaterial.TO_MAT_HIDE_ZERO));
+			if(!inItemWhiteList){
+				if (showWarning) {
+					String message = plugin
+							.getLocalizedMessage(LocalizedMessageEnum.ITEM_WHITELIST_ISSUE.getKey(), player);
+					player.sendMessage(ChatColor.RED + message);
+				}
+				return true;
+			}
+		}
+		
+		if(!inItemWhiteList){
+			String itemBlackListKey = getMaterialSettingConfigKey(itemWithPocket, ConfigKeyEnum.BLACKLIST.getKey());
+			List<String> blackListedItems = getConfig().getStringList(itemBlackListKey);
+			
+			if(blackListedItems != null && !blackListedItems.isEmpty()){
+				boolean inItemBlackList = blackListedItems.contains(itemInPocketMaterial.toString(ComplexMaterial.TO_MAT)) || blackListedItems.contains(itemInPocketMaterial.toString(ComplexMaterial.TO_MAT_HIDE_ZERO));
+				
+				if(inItemBlackList){
+					if (showWarning) {
+						String message = plugin
+								.getLocalizedMessage(LocalizedMessageEnum.ITEM_BLACKLIST_ISSUE.getKey(), player);
+						player.sendMessage(ChatColor.RED + message);
+					}
+					return true;
+				}
+			}
+			
+			blackListedItems = getConfig().getStringList(ConfigKeyEnum.BLACKLIST.getKey());
+			if(blackListedItems != null && !blackListedItems.isEmpty()){
+				boolean inItemBlackList = blackListedItems.contains(itemInPocketMaterial.toString(ComplexMaterial.TO_MAT)) || blackListedItems.contains(itemInPocketMaterial.toString(ComplexMaterial.TO_MAT_HIDE_ZERO));
+				
+				if(inItemBlackList){
+					if (showWarning) {
+						String message = plugin
+								.getLocalizedMessage(LocalizedMessageEnum.GLOBAL_BLACKLIST_ISSUE.getKey(), player);
+						player.sendMessage(ChatColor.RED + message);
+					}
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
 
@@ -235,7 +286,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 			if (item == null || item.getType().equals(Material.AIR))
 				continue;
 
-			if (pocketInPocketIssue(clickedItem, item, player, noPocketInPocketIssueLocated)) {
+			if (notAllowedIssue(clickedItem, item, player, noPocketInPocketIssueLocated)) {
 				noPocketInPocketIssueLocated = itemCanGoInPocket = false;
 			} else if (incompatibleIssue(item, player, noIncompatibleIssue)) {
 				noIncompatibleIssue = itemCanGoInPocket = false;
@@ -537,7 +588,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 
 				if (item != null) {
 
-					if (pocketInPocketIssue(itemWithPocket, item, player, showPocketInPocketWarning)) {
+					if (notAllowedIssue(itemWithPocket, item, player, showPocketInPocketWarning)) {
 						showPocketInPocketWarning = false;
 						tryToFitItemInPlayerInventory(item, player);
 						inventory.remove(item);

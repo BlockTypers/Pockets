@@ -6,6 +6,9 @@ public enum LocalizedMessageEnum {
 	SERVER_RESTARTED_WHILE_POCKET_WAS_OPEN("pockets-server-restarted-while-pocket-was-open"),
 	PERMISSION_DENIED("pockets-permission-denied"),
 	POCKETS_IN_POCKETS_NOT_ALLOWED("pockets-pockets-in-pockets-not-allowed"),
+	ITEM_WHITELIST_ISSUE("item-whitelist-issue"),
+	ITEM_BLACKLIST_ISSUE("item-blacklist-issue"),
+	GLOBAL_BLACKLIST_ISSUE("global-blacklist-issue"),
 	OBJECT_NOT_COMPATIBLE("pockets-object-not-compatible"),
 	YOUR_POCKETS_INVENTORY_NAME("pockets-your-pockets-inventory-name");
 

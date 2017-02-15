@@ -16,7 +16,8 @@ go-back-to-player-inventory-action-click-type: SHIFT_RIGHT
 rename-items-on-inventory-open: false
 
 default-pocket-color: §5
-
+blacklist: 
+  - BEDROCK
 
 materials-which-can-have-pockets:
 - LEATHER_HELMET
@@ -45,6 +46,8 @@ materials-which-can-have-pockets:
 - PUMPKIN
 - FURNACE
 - STONE-1
+- BEDROCK
+- TNT
 
 default-pocket-size-limit: 6
 default-allow-pocket-in-pocket: false
@@ -55,7 +58,7 @@ permissions-for-general-pocket-use: pockets.general
 require-permissions-pocket-in-pocket-use: false
 permissions-for-pocket-in-pocket-use: pockets.pocket-in-pocket
 
-global-blacklist: ID_120
+global-blacklist: BEDROCK
 
 material-settings: 
   LEATHER_HELMET: 
@@ -130,10 +133,28 @@ material-settings:
   PUMPKIN: 
     limit: 12
     allow-pocket-in-pocket: true
+  STONE-1: 
+    limit: 12
+    allow-pocket-in-pocket: true
+    whitelist: 
+      - STONE-1
   FURNACE: 
     limit: 1
-  STONE-1: 
+    allow-pocket-in-pocket: false
+    whitelist: 
+      - COAL
+      - COAL_BLOCK
+  TNT: 
     limit: 1
+    allow-pocket-in-pocket: false
+    blacklist: 
+      - FLINT_AND_STEEL
+      - LAVA_BUCKET
+  BEDROCK: 
+    limit: 12
+    allow-pocket-in-pocket: false
+    whitelist: 
+      - BEDROCK
 
 recipes-settings.continuous-translation: true
 
@@ -195,6 +216,9 @@ messages.pockets-permission-denied.en: Permission denied
 messages.pockets-pockets-in-pockets-not-allowed.en: Pockets in pockets not allowed
 messages.pockets-object-not-compatible.en: Object not compatible
 messages.pockets-your-pockets-inventory-name.en: Your Pockets
+messages.item-whitelist-issue.en: Item not white-listed
+messages.item-blacklist-issue.en: Item is black-listed
+messages.global-blacklist-issue.en: Item is globally black-listed
 
 messages.pockets-placed-a-pocket-down.de: An dem Gegenstand den du gerade platziert hast ist eine Tasche befestigt. Wenn du gleich wieder hin gehst, könntest du deine Sachen noch wieder bekommen.
 messages.pockets-server-restarted-while-pocket-was-open.de: Der Server wurde angepasst seit du diese Tasche geöffnet hast. Bitte öffne sie erneut und starte einen weiteren Versuch.
@@ -202,3 +226,6 @@ messages.pockets-permission-denied.de: Erlaubnis verweigert!
 messages.pockets-pockets-in-pockets-not-allowed.de: Taschen in den Taschen sind nicht erlaubt!
 messages.pockets-object-not-compatible.de: Objekt nicht kompatibel
 messages.pockets-your-pockets-inventory-name.de: Deine Taschen
+messages.item-whitelist-issue.de: Artikel nicht auf der Positivliste
+messages.item-blacklist-issue.de: Artikel kann schwarz-Liste
+messages.global-blacklist-issue.de: Der Artikel ist global schwarze Liste

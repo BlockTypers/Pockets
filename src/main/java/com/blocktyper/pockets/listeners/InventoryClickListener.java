@@ -161,7 +161,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			return;
 
 		if (event.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)) {
-			if (pocketInPocketIssue(item, event.getCursor(), player, true)) {
+			if (notAllowedIssue(item, event.getCursor(), player)) {
 				return;
 			} else if (incompatibleIssue(event.getCursor(), player, true)) {
 				return;
@@ -283,7 +283,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 
 				ItemStack itemBeingAdded = event.getCursor();
 
-				if (pocketInPocketIssue(itemWithPocket, itemBeingAdded, player)
+				if (notAllowedIssue(itemWithPocket, itemBeingAdded, player)
 						|| incompatibleIssue(itemBeingAdded, player, true)) {
 					event.setCancelled(true);
 					return;
@@ -295,7 +295,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 			ItemStack itemBeingTransferred = event.getCurrentItem();
 
 			if (!clickWasInPocketInventory) {
-				if (pocketInPocketIssue(itemWithPocket, itemBeingTransferred, player)
+				if (notAllowedIssue(itemWithPocket, itemBeingTransferred, player)
 						|| incompatibleIssue(itemBeingTransferred, player, true)) {
 					event.setCancelled(true);
 					return;
