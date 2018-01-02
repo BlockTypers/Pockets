@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.blocktyper.v1_2_4.helpers.InvisHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,13 +30,13 @@ import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.utils.OldPocketHelper;
-import com.blocktyper.v1_2_2.BlockTyperListener;
-import com.blocktyper.v1_2_2.helpers.ComplexMaterial;
-import com.blocktyper.v1_2_2.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_2_2.nbt.NBTItem;
-import com.blocktyper.v1_2_2.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_2_2.recipes.IRecipe;
-import com.blocktyper.v1_2_2.serialization.CardboardBox;
+import com.blocktyper.v1_2_4.BlockTyperListener;
+import com.blocktyper.v1_2_4.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_4.helpers.InvisHelper;
+import com.blocktyper.v1_2_4.nbt.NBTItem;
+import com.blocktyper.v1_2_4.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_4.recipes.IRecipe;
+import com.blocktyper.v1_2_4.serialization.CardboardBox;
 
 public abstract class PocketsListenerBase extends BlockTyperListener {
 
@@ -367,7 +368,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 			ItemMeta itemMeta = blackOut.getItemMeta();
 			itemMeta.setDisplayName(BLACKOUT_TEXT);
 			itemMeta.setLore(new ArrayList<>());
-			itemMeta.getLore().add(InvisibleLoreHelper.convertToInvisibleString(index + ""));
+			itemMeta.getLore().add(InvisHelper.convertToInvisibleString(index + ""));
 			blackOut.setItemMeta(itemMeta);
 			inventory.setItem(index, blackOut);
 		}
@@ -375,7 +376,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 
 	/**
 	 * 
-	 * @param material
+	 * @param item
 	 * @param suffix
 	 * @return
 	 */
@@ -424,7 +425,6 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 
 	/**
 	 * 
-	 * @param plugin
 	 * @param player
 	 */
 	public void openPlayersYourPocketsInventory(HumanEntity player) {
@@ -486,7 +486,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	protected String getPlayersYourPocketsInventoryName(HumanEntity player) {
 		String yourPocketsInventoryName = plugin
 				.getLocalizedMessage(LocalizedMessageEnum.YOUR_POCKETS_INVENTORY_NAME.getKey(), player);
-		return InvisibleLoreHelper.convertToInvisibleString(YOUR_POCKETS_HIDDEN_LORE_KEY) + ChatColor.RESET
+		return InvisHelper.convertToInvisibleString(YOUR_POCKETS_HIDDEN_LORE_KEY) + ChatColor.RESET
 				+ yourPocketsInventoryName;
 	}
 
@@ -667,7 +667,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 		IRecipe recipe = recipeRegistrar().getRecipeFromKey(PocketsPlugin.POCKET_RECIPE_KEY);
 		String pocketName = recipeRegistrar().getNameConsiderLocalization(recipe, player);
 
-		String invisiblePrefix = InvisibleLoreHelper.convertToInvisibleString(POCKETS_SIZE_HIDDEN_LORE_KEY);
+		String invisiblePrefix = InvisHelper.convertToInvisibleString(POCKETS_SIZE_HIDDEN_LORE_KEY);
 
 		return invisiblePrefix + plugin.getConfig().getString(ConfigKeyEnum.DEFAULT_POCKET_COLOR.getKey(),
 				PocketsPlugin.DEFAULT_POCKET_COLOR) + pocketName + " [" + itemCount + "]";
@@ -681,7 +681,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @return
 	 */
 	protected List<String> removeOldInvisibleLore(ItemStack itemWithPocket, String invisibelKey) {
-		return InvisibleLoreHelper.removeLoreWithInvisibleKey(itemWithPocket, invisibelKey);
+		return InvisHelper.removeLoreWithInvisibleKey(itemWithPocket, invisibelKey);
 	}
 
 	/**
@@ -706,7 +706,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @return
 	 */
 	protected boolean isHiddenRecipeKey(String loreLine) {
-		String visibleLine = InvisibleLoreHelper.convertToVisibleString(loreLine);
+		String visibleLine = InvisHelper.convertToVisibleString(loreLine);
 		return AbstractBlockTyperRecipe.isHiddenRecipeKey(visibleLine);
 	}
 

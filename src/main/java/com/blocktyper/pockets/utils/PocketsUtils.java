@@ -17,11 +17,11 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_2_2.IBlockTyperPlugin;
-import com.blocktyper.v1_2_2.helpers.ComplexMaterial;
-import com.blocktyper.v1_2_2.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_2_2.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_2_2.recipes.IRecipe;
+import com.blocktyper.v1_2_4.IBlockTyperPlugin;
+import com.blocktyper.v1_2_4.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_4.helpers.InvisHelper;
+import com.blocktyper.v1_2_4.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_4.recipes.IRecipe;
 
 public class PocketsUtils {
 
@@ -145,7 +145,7 @@ public class PocketsUtils {
 	}
 
 	private static void addPocketNameToLoreFirstLine(List<String> lore, String pocketName, IBlockTyperPlugin plugin) {
-		String invisiblePrefix = InvisibleLoreHelper
+		String invisiblePrefix = InvisHelper
 				.convertToInvisibleString(PocketsListenerBase.POCKETS_SIZE_HIDDEN_LORE_KEY);
 		lore.add(0, invisiblePrefix + plugin.getConfig().getString(ConfigKeyEnum.DEFAULT_POCKET_COLOR.getKey(),
 				PocketsPlugin.DEFAULT_POCKET_COLOR) + pocketName + " [0]");

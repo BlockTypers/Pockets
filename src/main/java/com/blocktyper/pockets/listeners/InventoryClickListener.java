@@ -20,9 +20,9 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
-import com.blocktyper.v1_2_2.helpers.InvisibleLoreHelper;
-import com.blocktyper.v1_2_2.nbt.NBTItem;
-import com.blocktyper.v1_2_2.recipes.IRecipe;
+import com.blocktyper.v1_2_4.helpers.InvisHelper;
+import com.blocktyper.v1_2_4.nbt.NBTItem;
+import com.blocktyper.v1_2_4.recipes.IRecipe;
 
 public class InventoryClickListener extends PocketsListenerBase {
 
@@ -89,7 +89,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 		
 		
 		if(event.getInventory() != null && event.getInventory().getName() != null){
-			String inventoryNameWithNoInvis = InvisibleLoreHelper.convertToVisibleString(event.getInventory().getName());
+			String inventoryNameWithNoInvis = InvisHelper.convertToVisibleString(event.getInventory().getName());
 			if(inventoryNameWithNoInvis.startsWith(YOUR_POCKETS_HIDDEN_LORE_KEY)){
 				event.setCancelled(true);
 				if(!isBlackoutItem(item)){
