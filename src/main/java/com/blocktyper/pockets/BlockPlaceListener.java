@@ -17,7 +17,7 @@ import org.bukkit.metadata.MetadataValue;
 
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_2_4.serialization.CardboardBox;
+import com.blocktyper.v1_2_5.serialization.CardboardBox;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -39,7 +39,7 @@ public class BlockPlaceListener extends PocketsListenerBase {
 			return;
 		}
 
-		Pocket pocket = getPocket(itemInHand, event.getPlayer());
+		Pocket pocket = getPocket(itemInHand);
 
 		if (pocket == null) {
 			plugin.debugInfo("[onPocketBlockPlaceEvent] pocket == null");

@@ -3,7 +3,7 @@ package com.blocktyper.pockets.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.blocktyper.v1_2_4.serialization.CardboardBox;
+import com.blocktyper.v1_2_5.serialization.CardboardBox;
 
 
 public class Pocket {

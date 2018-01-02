@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.blocktyper.v1_2_4.helpers.InvisHelper;
+import com.blocktyper.v1_2_5.helpers.InvisHelper;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -12,9 +12,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_2_4.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_2_4.recipes.IRecipe;
-import com.blocktyper.v1_2_4.serialization.CardboardBox;
+import com.blocktyper.v1_2_5.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_5.recipes.IRecipe;
+import com.blocktyper.v1_2_5.serialization.CardboardBox;
 
 public class OldPocketHelper {
 

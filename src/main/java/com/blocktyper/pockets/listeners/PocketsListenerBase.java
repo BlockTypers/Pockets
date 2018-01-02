@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.blocktyper.v1_2_4.helpers.InvisHelper;
+import com.blocktyper.v1_2_5.helpers.InvisHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -30,13 +30,13 @@ import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.utils.OldPocketHelper;
-import com.blocktyper.v1_2_4.BlockTyperListener;
-import com.blocktyper.v1_2_4.helpers.ComplexMaterial;
-import com.blocktyper.v1_2_4.helpers.InvisHelper;
-import com.blocktyper.v1_2_4.nbt.NBTItem;
-import com.blocktyper.v1_2_4.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_2_4.recipes.IRecipe;
-import com.blocktyper.v1_2_4.serialization.CardboardBox;
+import com.blocktyper.v1_2_5.BlockTyperListener;
+import com.blocktyper.v1_2_5.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_5.helpers.InvisHelper;
+import com.blocktyper.v1_2_5.nbt.NBTItem;
+import com.blocktyper.v1_2_5.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_5.recipes.IRecipe;
+import com.blocktyper.v1_2_5.serialization.CardboardBox;
 
 public abstract class PocketsListenerBase extends BlockTyperListener {
 
@@ -174,7 +174,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 						ConfigKeyEnum.MATERIAL_SETTING_ALLOW_POCKET_IN_POCKET.getKey()),
 				defaultAllowPocketsInPocket);
 
-		Pocket pocket = getPocket(itemInPocket, player);
+		Pocket pocket = getPocket(itemInPocket);
 		if (pocket != null && pocket.getContents() != null && !pocket.getContents().isEmpty()) {
 			if (!allowPocketsInPocket) {
 				if (showWarning) {
@@ -405,7 +405,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 	 * @param player
 	 * @return
 	 */
-	public Pocket getPocket(ItemStack item, HumanEntity player) {
+	public Pocket getPocket(ItemStack item) {
 
 		debugInfo("Looking for pocket in: " + (item != null ? item.getType().name() : "null"));
 
@@ -440,7 +440,7 @@ public abstract class PocketsListenerBase extends BlockTyperListener {
 					continue;
 				}
 
-				Pocket pocket = getPocket(item, player);
+				Pocket pocket = getPocket(item);
 				if (pocket != null) {
 					int pocketSize = pocket.getContents() != null ? pocket.getContents().size() : 0;
 

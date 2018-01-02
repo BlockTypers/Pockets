@@ -20,9 +20,9 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
-import com.blocktyper.v1_2_4.helpers.InvisHelper;
-import com.blocktyper.v1_2_4.nbt.NBTItem;
-import com.blocktyper.v1_2_4.recipes.IRecipe;
+import com.blocktyper.v1_2_5.helpers.InvisHelper;
+import com.blocktyper.v1_2_5.nbt.NBTItem;
+import com.blocktyper.v1_2_5.recipes.IRecipe;
 
 public class InventoryClickListener extends PocketsListenerBase {
 
@@ -145,7 +145,7 @@ public class InventoryClickListener extends PocketsListenerBase {
 	
 	
 	private void checkIfItemHasPocketAndOpen(InventoryClickEvent event, ItemStack item, Player player){
-		Pocket pocket = getPocket(item, player);
+		Pocket pocket = getPocket(item);
 		List<ItemStack> contents = null;
 		if (pocket != null) {
 			debugInfo("------------------------------------------");

@@ -40,13 +40,13 @@ public class InventoryOpenListener extends PocketsListenerBase {
 
 		for (ItemStack item : event.getInventory().getContents()) {
 			if (item != null) {
-				Pocket pocket = getPocket(item, player);
+				Pocket pocket = getPocket(item);
 				if (pocket == null) {
 					continue;
 				}
 
 				List<ItemStack> contents = getPocketContents(pocket);
-				item = setPocketNbt(item, contents, event.getInventory().getViewers().get(0), true);
+				setPocketNbt(item, contents, event.getInventory().getViewers().get(0), true);
 			}
 		}
 	}

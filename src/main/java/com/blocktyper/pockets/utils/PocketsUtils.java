@@ -17,11 +17,11 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.listeners.PocketsListenerBase;
-import com.blocktyper.v1_2_4.IBlockTyperPlugin;
-import com.blocktyper.v1_2_4.helpers.ComplexMaterial;
-import com.blocktyper.v1_2_4.helpers.InvisHelper;
-import com.blocktyper.v1_2_4.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_2_4.recipes.IRecipe;
+import com.blocktyper.v1_2_5.IBlockTyperPlugin;
+import com.blocktyper.v1_2_5.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_5.helpers.InvisHelper;
+import com.blocktyper.v1_2_5.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_5.recipes.IRecipe;
 
 public class PocketsUtils {
 
