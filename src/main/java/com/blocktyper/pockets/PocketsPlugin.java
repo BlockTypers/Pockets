@@ -18,9 +18,9 @@ import com.blocktyper.pockets.listeners.InventoryClickListener;
 import com.blocktyper.pockets.listeners.InventoryOpenListener;
 import com.blocktyper.pockets.listeners.PlayerInventoryOpenListener;
 import com.blocktyper.pockets.utils.PocketsUtils;
-import com.blocktyper.v1_2_5.BlockTyperBasePlugin;
-import com.blocktyper.v1_2_5.nbt.ItemNBTIntegrationTest;
-import com.blocktyper.v1_2_5.recipes.IRecipe;
+import com.blocktyper.v1_2_6.BlockTyperBasePlugin;
+import com.blocktyper.v1_2_6.nbt.ItemNBTIntegrationTest;
+import com.blocktyper.v1_2_6.recipes.IRecipe;
 
 public class PocketsPlugin extends BlockTyperBasePlugin implements CommandExecutor {
 

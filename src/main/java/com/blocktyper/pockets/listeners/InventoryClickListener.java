@@ -20,9 +20,9 @@ import com.blocktyper.pockets.ConfigKeyEnum;
 import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
-import com.blocktyper.v1_2_5.helpers.InvisHelper;
-import com.blocktyper.v1_2_5.nbt.NBTItem;
-import com.blocktyper.v1_2_5.recipes.IRecipe;
+import com.blocktyper.v1_2_6.helpers.InvisHelper;
+import com.blocktyper.v1_2_6.nbt.NBTItem;
+import com.blocktyper.v1_2_6.recipes.IRecipe;
 
 public class InventoryClickListener extends PocketsListenerBase {
 

@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.blocktyper.v1_2_5.helpers.InvisHelper;
+import com.blocktyper.v1_2_6.helpers.InvisHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -30,13 +30,13 @@ import com.blocktyper.pockets.LocalizedMessageEnum;
 import com.blocktyper.pockets.PocketsPlugin;
 import com.blocktyper.pockets.data.Pocket;
 import com.blocktyper.pockets.utils.OldPocketHelper;
-import com.blocktyper.v1_2_5.BlockTyperListener;
-import com.blocktyper.v1_2_5.helpers.ComplexMaterial;
-import com.blocktyper.v1_2_5.helpers.InvisHelper;
-import com.blocktyper.v1_2_5.nbt.NBTItem;
-import com.blocktyper.v1_2_5.recipes.AbstractBlockTyperRecipe;
-import com.blocktyper.v1_2_5.recipes.IRecipe;
-import com.blocktyper.v1_2_5.serialization.CardboardBox;
+import com.blocktyper.v1_2_6.BlockTyperListener;
+import com.blocktyper.v1_2_6.helpers.ComplexMaterial;
+import com.blocktyper.v1_2_6.helpers.InvisHelper;
+import com.blocktyper.v1_2_6.nbt.NBTItem;
+import com.blocktyper.v1_2_6.recipes.AbstractBlockTyperRecipe;
+import com.blocktyper.v1_2_6.recipes.IRecipe;
+import com.blocktyper.v1_2_6.serialization.CardboardBox;
 
 public abstract class PocketsListenerBase extends BlockTyperListener {
 
